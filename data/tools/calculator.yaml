@@ -1,0 +1,13 @@
+name: calculator
+description: Evaluate a mathematical expression safely. Supports basic arithmetic operations (+, -, *, /, parentheses)
+type: function
+module_path: app.tools.basic_tools
+function_name: calculator
+parameters:
+  - name: expression
+    type: string
+    description: The mathematical expression to evaluate (e.g., "2 + 2 * 3")
+    required: true
+metadata:
+  category: math
+  version: "1.0"

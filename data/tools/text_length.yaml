@@ -1,0 +1,13 @@
+name: text_length
+description: Calculate the length of text including character count, word count, and line count
+type: function
+module_path: app.tools.basic_tools
+function_name: text_length
+parameters:
+  - name: text
+    type: string
+    description: The text to analyze
+    required: true
+metadata:
+  category: text_processing
+  version: "1.0"

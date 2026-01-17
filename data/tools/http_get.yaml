@@ -1,0 +1,17 @@
+name: http_get
+description: Make an HTTP GET request to a URL and return the response
+type: function
+module_path: app.tools.basic_tools
+function_name: http_get
+parameters:
+  - name: url
+    type: string
+    description: The URL to make the GET request to
+    required: true
+  - name: headers
+    type: object
+    description: Optional HTTP headers to include in the request
+    required: false
+metadata:
+  category: http
+  version: "1.0"

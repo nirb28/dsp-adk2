@@ -1,0 +1,21 @@
+name: weather_api
+description: Get current weather information for a city using wttr.in API
+type: api
+api_endpoint: https://wttr.in/${city}
+api_method: GET
+api_headers:
+  User-Agent: curl
+parameters:
+  - name: city
+    type: string
+    description: The city name to get weather for
+    required: true
+  - name: format
+    type: string
+    description: Output format (default is text)
+    required: false
+    default: "?format=3"
+metadata:
+  category: weather
+  version: "1.0"
+  provider: wttr.in
