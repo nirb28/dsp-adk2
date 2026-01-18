@@ -75,6 +75,8 @@ def text_to_sql(
     query: Optional[str] = None,
     execute: bool = False,
     db_path: str = "",
+    sql: Optional[str] = None,
+    **_: Any,
 ) -> Dict[str, Any]:
     """Generate SQL from natural language using schema, samples, and context."""
     llm_config = LLMConfig(

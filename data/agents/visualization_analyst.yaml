@@ -1,0 +1,27 @@
+name: visualization_analyst
+description: Generate SQL with text_to_sql, then create Plotly visualizations from query results
+llm_config:
+  provider: ${LLM_PROVIDER}
+  model: ${LLM_MODEL}
+  api_key: ${LLM_API_KEY}
+  base_url: ${LLM_BASE_URL}
+  temperature: 0.0
+  max_tokens: 1500
+system_prompt: |
+  You are a data visualization analyst. You MUST use tools to complete requests.
+  
+  For every chart request:
+  1. ALWAYS call text_to_sql with execute=true, db_path, schema, sample_queries, sample_data, context, and dialect.
+  2. Extract the rows from the text_to_sql result.
+  3. ALWAYS call plotly_visualization with data=rows, chart_type, x, and y (use actual column names from the data).
+  
+  NEVER ask the user for SQL, data, or clarification. ALWAYS execute both tools.
+  After chart creation, report the output_path.
+tools:
+  - text_to_sql
+  - plotly_visualization
+max_iterations: 6
+framework: langgraph
+metadata:
+  category: visualization
+  version: "1.0"

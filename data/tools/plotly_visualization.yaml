@@ -1,0 +1,37 @@
+name: plotly_visualization
+description: Create a Plotly chart from tabular data and save it to a file
+type: function
+module_path: app.tools.plotly_tools
+function_name: plotly_visualization
+parameters:
+  - name: data
+    type: array
+    description: List of row objects to visualize
+    required: true
+  - name: chart_type
+    type: string
+    description: Chart type (bar, line, scatter, pie)
+    required: true
+  - name: x
+    type: string
+    description: Column to use for x-axis or labels
+    required: true
+  - name: y
+    type: string
+    description: Column to use for y-axis or values
+    required: false
+  - name: title
+    type: string
+    description: Chart title
+    required: false
+  - name: output_format
+    type: string
+    description: Output format (html, png, jpeg, svg, pdf)
+    required: false
+  - name: output_path
+    type: string
+    description: Optional output path for the chart file
+    required: false
+metadata:
+  category: visualization
+  version: "1.0"
