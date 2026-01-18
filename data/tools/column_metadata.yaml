@@ -1,0 +1,29 @@
+name: column_metadata
+description: Generate metadata for every column in a schema using sample metadata guidance
+
+type: function
+module_path: app.tools.metadata_tools
+function_name: column_metadata
+
+parameters:
+  - name: schema
+    type: string
+    description: Database schema definition for all tables
+    required: true
+  - name: sample_metadata
+    type: string
+    description: Example metadata format to follow for each column
+    required: true
+  - name: context
+    type: string
+    description: Optional extra context about the data domain
+    required: false
+  - name: dialect
+    type: string
+    description: SQL dialect for the schema
+    required: false
+    default: sqlite
+
+metadata:
+  category: metadata
+  version: "1.0"

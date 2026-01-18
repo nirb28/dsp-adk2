@@ -1,0 +1,21 @@
+name: metadata_analyst
+description: Generate column-level metadata for all tables in a schema
+llm_config:
+  provider: ${LLM_PROVIDER}
+  model: ${LLM_MODEL}
+  api_key: ${LLM_API_KEY}
+  base_url: ${LLM_BASE_URL}
+  temperature: 0.0
+  max_tokens: 2000
+system_prompt: |
+  You are a data catalog analyst. You MUST use the column_metadata tool.
+  The user input will include sections named "schema" and "sample_metadata".
+  Always call column_metadata with those exact values and return the JSON output.
+  Never ask the user for additional info. Use only the provided schema and sample metadata.
+tools:
+  - column_metadata
+max_iterations: 4
+framework: langgraph
+metadata:
+  category: metadata
+  version: "1.0"
