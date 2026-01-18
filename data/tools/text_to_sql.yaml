@@ -1,0 +1,46 @@
+name: text_to_sql
+description: Generate SQL from a natural language question using schema, sample queries, and sample data context
+type: function
+module_path: app.tools.sql_tools
+function_name: text_to_sql
+parameters:
+  - name: question
+    type: string
+    description: The natural language question to convert into SQL
+    required: true
+  - name: query
+    type: string
+    description: Alias for question (some agents call this field query)
+    required: false
+  - name: schema
+    type: string
+    description: Database schema (table definitions and relationships)
+    required: true
+  - name: sample_queries
+    type: string
+    description: Example SQL queries with brief context notes
+    required: true
+  - name: sample_data
+    type: string
+    description: Small sample of data values or rows for grounding
+    required: true
+  - name: execute
+    type: boolean
+    description: Execute the generated SQL against the database when true
+    required: false
+    default: false
+  - name: db_path
+    type: string
+    description: Path to the SQLite database file (required when execute=true)
+    required: false
+  - name: context
+    type: string
+    description: Additional business context or rules
+    required: false
+  - name: dialect
+    type: string
+    description: SQL dialect (sqlite, postgres, mysql, etc.)
+    required: false
+metadata:
+  category: database
+  version: "1.0"

@@ -1,0 +1,21 @@
+name: database_analyst
+description: An AI database analyst that converts questions to SQL using schema, sample queries, and sample data context
+llm_config:
+  provider: ${LLM_PROVIDER}
+  model: ${LLM_MODEL}
+  api_key: ${LLM_API_KEY}
+  base_url: ${LLM_BASE_URL}
+  temperature: 0.2
+  max_tokens: 1500
+system_prompt: |
+  You are a database analyst. Use the provided schema, sample queries, and sample data to answer questions.
+  Always generate SQL that matches the schema and dialect. Prefer concise SQL and verify it aligns with the examples.
+  Use the text_to_sql tool. Set execute=true and provide db_path when you need results from the database.
+  When results are available, summarize them clearly and briefly.
+tools:
+  - text_to_sql
+max_iterations: 5
+framework: langgraph
+metadata:
+  category: database
+  version: "1.0"
