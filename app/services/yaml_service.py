@@ -4,7 +4,7 @@ from typing import Dict, List, Optional
 from pathlib import Path
 import re
 from app.config import settings
-from app.models import ToolConfig, AgentConfig
+from app.models import ToolConfig, AgentConfig, GraphConfig
 
 
 class YAMLService:
@@ -108,3 +108,40 @@ class YAMLService:
         if not agents_path.exists():
             return []
         return [f.stem for f in agents_path.glob("*.yaml")]
+
+    @staticmethod
+    def load_graph(graph_id: str) -> Optional[GraphConfig]:
+        """Load a graph configuration from YAML file."""
+        graph_path = Path(settings.graphs_dir) / f"{graph_id}.yaml"
+        if not graph_path.exists():
+            return None
+
+        with open(graph_path, "r") as f:
+            data = yaml.safe_load(f)
+
+        resolved_data = YAMLService.resolve_env_vars(data)
+        return GraphConfig(**resolved_data)
+
+    @staticmethod
+    def save_graph(graph: GraphConfig) -> None:
+        """Save a graph configuration to YAML file."""
+        graph_path = Path(settings.graphs_dir) / f"{graph.id}.yaml"
+        with open(graph_path, "w") as f:
+            yaml.dump(graph.model_dump(exclude_none=True), f, default_flow_style=False)
+
+    @staticmethod
+    def delete_graph(graph_id: str) -> bool:
+        """Delete a graph configuration file."""
+        graph_path = Path(settings.graphs_dir) / f"{graph_id}.yaml"
+        if graph_path.exists():
+            graph_path.unlink()
+            return True
+        return False
+
+    @staticmethod
+    def list_graphs() -> List[str]:
+        """List all available graph IDs."""
+        graphs_path = Path(settings.graphs_dir)
+        if not graphs_path.exists():
+            return []
+        return [f.stem for f in graphs_path.glob("*.yaml")]

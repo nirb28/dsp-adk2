@@ -8,6 +8,7 @@ A simple base agent development framework with YAML-based configurations, enviro
 - **Environment Variable Support**: Use `.env` file for sensitive configuration (API keys, LLM settings)
 - **Multiple Tool Types**: Support for function-based, API-based, and Python code-based tools
 - **LangGraph Integration**: Build agents using LangGraph framework
+- **LangGraph Graphs**: Define graphs in YAML and execute them via REST
 - **REST API**: Complete admin and execution APIs
 - **Basic Tools Included**: Text processing, HTTP requests, calculator, and more
 
@@ -31,7 +32,8 @@ dsp-adk2/
 │   └── main.py               # FastAPI application
 ├── data/
 │   ├── agents/               # Agent YAML configurations
-│   └── tools/                # Tool YAML configurations
+│   ├── tools/                # Tool YAML configurations
+│   └── graphs/               # Graph YAML configurations
 ├── .env.example              # Example environment variables
 ├── requirements.txt          # Python dependencies
 ├── run.py                    # Application entry point
@@ -152,6 +154,56 @@ max_iterations: 5
 framework: langgraph
 ```
 
+## Graph Configuration (LangGraph)
+
+Graphs are defined in YAML under `data/graphs/` and reference existing agents/tools:
+
+```yaml
+id: hello-langgraph
+name: Hello LangGraph
+description: Minimal graph that greets the user with the simple_assistant agent
+entry_point: START
+nodes:
+  - id: START
+    name: Start
+    type: start
+  - id: greeter
+    name: Greeter Agent
+    type: agent
+    agent_id: simple_assistant
+    input_mapping:
+      prompt: $.message
+    output_mapping:
+      reply: $.response
+  - id: END
+    name: End
+    type: end
+edges:
+  - id: start_to_greeter
+    source: START
+    target: greeter
+    type: normal
+  - id: greeter_to_end
+    source: greeter
+    target: END
+    type: normal
+```
+
+### Execution API - Run Graphs
+
+```bash
+POST http://localhost:8200/execute/graph
+Content-Type: application/json
+
+{
+  "graph_id": "hello-langgraph",
+  "input": {
+    "message": "Hello there"
+  },
+  "context": {}
+}
+```
+
 ## Environment Variables
 
 All YAML configurations support environment variable substitution using `${VARIABLE_NAME}` syntax:
@@ -221,10 +273,17 @@ LLM_API_KEY=nvapi-...
 - `PUT /admin/agents/{agent_name}` - Update agent
 - `DELETE /admin/agents/{agent_name}` - Delete agent
 
+- `GET /admin/graphs` - List all graphs
+- `GET /admin/graphs/{graph_id}` - Get graph details
+- `POST /admin/graphs` - Create new graph
+- `PUT /admin/graphs/{graph_id}` - Update graph
+- `DELETE /admin/graphs/{graph_id}` - Delete graph
+
 ### Execution Endpoints
 
 - `POST /execute/tool` - Execute a tool
 - `POST /execute/agent` - Execute an agent
+- `POST /execute/graph` - Execute a graph
 
 ### System Endpoints
 

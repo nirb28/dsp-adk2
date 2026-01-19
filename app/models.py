@@ -57,6 +57,74 @@ class AgentConfig(BaseModel):
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
+class GraphType(str, Enum):
+    LANGGRAPH = "langgraph"
+
+
+class GraphNodeType(str, Enum):
+    START = "start"
+    END = "end"
+    AGENT = "agent"
+    TOOL = "tool"
+    CUSTOM = "custom"
+
+
+class GraphEdgeType(str, Enum):
+    NORMAL = "normal"
+
+
+class GraphNode(BaseModel):
+    id: str = Field(description="Unique node identifier")
+    name: str = Field(description="Human-readable node name")
+    type: GraphNodeType = Field(default=GraphNodeType.AGENT)
+    agent_id: Optional[str] = Field(default=None, description="Agent ID for agent nodes")
+    tool_id: Optional[str] = Field(default=None, description="Tool ID for tool nodes")
+    input_mapping: Dict[str, Any] = Field(default_factory=dict, description="Input mapping for node execution")
+    output_mapping: Dict[str, Any] = Field(default_factory=dict, description="Output mapping for node execution")
+    config: Dict[str, Any] = Field(default_factory=dict, description="Node-specific configuration")
+    routes: Dict[str, str] = Field(default_factory=dict, description="Routing rules for conditional nodes")
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+
+class GraphEdge(BaseModel):
+    id: str = Field(description="Unique edge identifier")
+    source: str = Field(description="Source node ID")
+    target: str = Field(description="Target node ID")
+    type: GraphEdgeType = Field(default=GraphEdgeType.NORMAL)
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+
+class GraphConfig(BaseModel):
+    id: str = Field(description="Unique graph identifier")
+    name: str = Field(description="Human-readable graph name")
+    description: Optional[str] = Field(default=None)
+    type: GraphType = Field(default=GraphType.LANGGRAPH)
+    nodes: List[GraphNode] = Field(default_factory=list)
+    edges: List[GraphEdge] = Field(default_factory=list)
+    entry_point: Optional[str] = Field(default=None)
+    max_iterations: int = Field(default=25, ge=1)
+    timeout: int = Field(default=300, ge=1)
+    streaming: bool = Field(default=True)
+    agents: List[str] = Field(default_factory=list)
+    tools: List[str] = Field(default_factory=list)
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+
+class GraphExecutionRequest(BaseModel):
+    graph_id: str
+    input: Dict[str, Any] = Field(default_factory=dict)
+    context: Dict[str, Any] = Field(default_factory=dict)
+
+
+class GraphExecutionResponse(BaseModel):
+    graph_id: str
+    success: bool
+    output: Dict[str, Any] = Field(default_factory=dict)
+    steps: List[Dict[str, Any]] = Field(default_factory=list)
+    error: Optional[str] = None
+    execution_time: float
+
+
 class ToolExecutionRequest(BaseModel):
     tool_name: str
     parameters: Dict[str, Any] = Field(default_factory=dict)

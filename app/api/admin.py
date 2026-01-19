@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 from typing import List
-from app.models import ToolConfig, AgentConfig
+from app.models import ToolConfig, AgentConfig, GraphConfig
 from app.services.yaml_service import YAMLService
 from app.services.tool_service import ToolService
 
@@ -149,4 +149,63 @@ async def delete_agent(agent_name: str):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Agent '{agent_name}' not found"
+        )
+
+
+@router.get("/graphs", response_model=List[str])
+async def list_graphs():
+    """List all available graphs."""
+    return YAMLService.list_graphs()
+
+
+@router.get("/graphs/{graph_id}", response_model=GraphConfig)
+async def get_graph(graph_id: str):
+    """Get a specific graph configuration."""
+    graph = YAMLService.load_graph(graph_id)
+    if not graph:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Graph '{graph_id}' not found"
+        )
+    return graph
+
+
+@router.post("/graphs", response_model=GraphConfig, status_code=status.HTTP_201_CREATED)
+async def create_graph(graph: GraphConfig):
+    """Create a new graph."""
+    existing = YAMLService.load_graph(graph.id)
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Graph '{graph.id}' already exists"
+        )
+
+    YAMLService.save_graph(graph)
+    return graph
+
+
+@router.put("/graphs/{graph_id}", response_model=GraphConfig)
+async def update_graph(graph_id: str, graph: GraphConfig):
+    """Update an existing graph."""
+    existing = YAMLService.load_graph(graph_id)
+    if not existing:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Graph '{graph_id}' not found"
+        )
+
+    if graph.id != graph_id:
+        YAMLService.delete_graph(graph_id)
+
+    YAMLService.save_graph(graph)
+    return graph
+
+
+@router.delete("/graphs/{graph_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_graph(graph_id: str):
+    """Delete a graph."""
+    if not YAMLService.delete_graph(graph_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Graph '{graph_id}' not found"
         )

@@ -1,0 +1,35 @@
+id: hello-langgraph
+name: Hello LangGraph
+description: Minimal graph that greets the user with the simple_assistant agent
+entry_point: START
+max_iterations: 10
+timeout: 300
+streaming: true
+nodes:
+  - id: START
+    name: Start
+    type: start
+  - id: greeter
+    name: Greeter Agent
+    type: agent
+    agent_id: simple_assistant
+    input_mapping:
+      prompt: $.message
+    output_mapping:
+      reply: $.response
+  - id: END
+    name: End
+    type: end
+edges:
+  - id: start_to_greeter
+    source: START
+    target: greeter
+    type: normal
+  - id: greeter_to_end
+    source: greeter
+    target: END
+    type: normal
+metadata:
+  tags:
+    - hello
+    - langgraph

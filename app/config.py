@@ -58,6 +58,7 @@ class Settings(BaseSettings):
     data_dir: str = Field(default="./data")
     agents_dir: str = Field(default="./data/agents")
     tools_dir: str = Field(default="./data/tools")
+    graphs_dir: str = Field(default="./data/graphs")
     
     api_key: Optional[str] = Field(default=None)
     jwt_secret: Optional[str] = Field(default=None)
@@ -71,3 +72,4 @@ settings = Settings()
 os.makedirs(settings.data_dir, exist_ok=True)
 os.makedirs(settings.agents_dir, exist_ok=True)
 os.makedirs(settings.tools_dir, exist_ok=True)
+os.makedirs(settings.graphs_dir, exist_ok=True)
