@@ -1,7 +1,39 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
-from typing import Optional
+from typing import Optional, Dict
 import os
+import re
+from dotenv import dotenv_values
+
+
+def _expand_env_value(value: str, env_map: Dict[str, str]) -> str:
+    pattern = r"\$\{([^}]+)\}"
+    result = value
+    for match in re.findall(pattern, value):
+        resolved = env_map.get(match) or os.getenv(match) or ""
+        result = result.replace(f"${{{match}}}", resolved)
+    return result
+
+
+def _load_env_with_expansion(path: str = ".env") -> None:
+    raw_values = dotenv_values(path)
+    resolved = {k: ("" if v is None else str(v)) for k, v in raw_values.items()}
+
+    for _ in range(3):
+        updated = False
+        for key, value in resolved.items():
+            expanded = _expand_env_value(value, {**resolved, **os.environ})
+            if expanded != value:
+                resolved[key] = expanded
+                updated = True
+        if not updated:
+            break
+
+    for key, value in resolved.items():
+        os.environ.setdefault(key, value)
+
+
+_load_env_with_expansion()
 
 
 class Settings(BaseSettings):
@@ -17,10 +49,6 @@ class Settings(BaseSettings):
     llm_base_url: Optional[str] = Field(default=None)
     llm_temperature: float = Field(default=0.7)
     llm_max_tokens: int = Field(default=2000)
-    
-    groq_api_key: Optional[str] = Field(default=None)
-    anthropic_api_key: Optional[str] = Field(default=None)
-    nvidia_api_key: Optional[str] = Field(default=None)
     
     app_host: str = Field(default="0.0.0.0")
     app_port: int = Field(default=8200)

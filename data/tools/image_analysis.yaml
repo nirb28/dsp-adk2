@@ -1,0 +1,46 @@
+name: image_analysis
+description: Analyze an image using NVIDIA vision models.
+type: function
+module_path: app.tools.image_tools
+function_name: analyze_image
+parameters:
+  - name: image_url
+    type: string
+    description: Public URL for the image to analyze.
+    required: true
+  - name: model
+    type: string
+    description: Vision-capable model name to use for analysis.
+    required: true
+    default: meta/llama-3.2-90b-vision-instruct
+  - name: system_prompt
+    type: string
+    description: Optional system prompt override.
+    required: false
+  - name: user_prompt
+    type: string
+    description: Optional user prompt override.
+    required: false
+  - name: temperature
+    type: number
+    description: Sampling temperature.
+    required: false
+    default: 0.2
+  - name: top_p
+    type: number
+    description: Nucleus sampling value.
+    required: false
+    default: 0.7
+  - name: max_tokens
+    type: number
+    description: Maximum tokens to generate.
+    required: false
+    default: 1024
+  - name: stream
+    type: boolean
+    description: Whether to stream responses.
+    required: false
+    default: false
+metadata:
+  category: vision
+  version: "1.0"

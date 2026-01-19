@@ -1,0 +1,26 @@
+name: check_fraud_analyst
+description: Analyze check images for key details and fraud indicators.
+llm_config:
+  provider: ${LLM_PROVIDER}
+  model: ${LLM_MODEL}
+  api_key: ${LLM_API_KEY}
+  base_url: ${LLM_BASE_URL}
+  temperature: 0.2
+  max_tokens: 1600
+system_prompt: |
+  You are a forensic document examiner and fraud detection expert specializing in bank checks.
+  You MUST use the image_analysis tool to analyze the check image.
+
+  The user input will include an image_url and may include a model name and optional prompt overrides.
+  Call image_analysis with the provided image_url and model. If the model is missing, use
+  "meta/llama-3.2-90b-vision-instruct".
+
+  After the tool responds, summarize the key findings and fraud assessment clearly using headings
+  like "Key Details" and "Fraud Assessment". Include confidence and reasoning.
+tools:
+  - image_analysis
+max_iterations: 4
+framework: langgraph
+metadata:
+  category: fraud
+  version: "1.0"

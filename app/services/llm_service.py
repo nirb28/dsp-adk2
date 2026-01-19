@@ -27,10 +27,9 @@ class LLMService:
             )
         
         api_key = llm_config.api_key or settings.llm_api_key
-        
+
         if llm_config.provider.lower() == "groq":
             LLMService.logger.debug(f"Using Groq provider with model: {llm_config.model}")
-            api_key = api_key or settings.groq_api_key
             return ChatGroq(
                 model=llm_config.model,
                 groq_api_key=api_key,
@@ -40,7 +39,6 @@ class LLMService:
         elif llm_config.provider.lower() in ["openai", "nvidia", "openai_compatible"]:
             base_url = llm_config.base_url or settings.llm_base_url
             if llm_config.provider.lower() == "nvidia":
-                api_key = api_key or settings.nvidia_api_key
                 base_url = base_url or "https://integrate.api.nvidia.com/v1"
             
             LLMService.logger.debug(f"Using {llm_config.provider} provider with model: {llm_config.model}, base_url: {base_url}")
