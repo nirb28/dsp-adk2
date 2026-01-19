@@ -204,6 +204,15 @@ Content-Type: application/json
 }
 ```
 
+### Example Graphs
+
+- `data/graphs/research_summarize.yaml` - Multi-node research → summarize flow.
+- `data/graphs/tool_payload_demo.yaml` - Tool node with payload override + conditional routing.
+
+### Example Graph API Client
+
+`examples/graphs/run_graph_api.py` demonstrates invoking the `/execute/graph` endpoint.
+
 ## Environment Variables
 
 All YAML configurations support environment variable substitution using `${VARIABLE_NAME}` syntax:

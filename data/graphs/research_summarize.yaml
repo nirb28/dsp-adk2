@@ -1,0 +1,61 @@
+id: research-summarize
+name: Research and Summarize
+description: Multi-node flow that researches a topic then summarizes findings
+entry_point: START
+max_iterations: 10
+timeout: 300
+nodes:
+  - id: START
+    name: Start
+    type: start
+  - id: research
+    name: Research Agent
+    type: agent
+    agent_id: research_assistant
+    input_mapping:
+      prompt: $.topic
+    output_mapping:
+      research_notes: $.response
+  - id: trim_notes
+    name: Trim Research Notes
+    type: tool
+    tool_id: truncate_text
+    input_mapping:
+      text: $.research_notes
+      max_chars: 1200
+      suffix: "..."
+    output_mapping:
+      research_notes: $.response
+  - id: summarize
+    name: Summarize Agent
+    type: agent
+    agent_id: simple_assistant
+    input_mapping:
+      prompt: "Summarize the following research notes:\n\n{{ research_notes }}"
+    output_mapping:
+      summary: $.response
+  - id: END
+    name: End
+    type: end
+edges:
+  - id: start_to_research
+    source: START
+    target: research
+    type: normal
+  - id: research_to_summarize
+    source: research
+    target: trim_notes
+    type: normal
+  - id: trim_to_summarize
+    source: trim_notes
+    target: summarize
+    type: normal
+  - id: summarize_to_end
+    source: summarize
+    target: END
+    type: normal
+metadata:
+  tags:
+    - research
+    - summarize
+    - multi-node

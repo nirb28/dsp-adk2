@@ -1,0 +1,44 @@
+id: tool-payload-demo
+name: Tool Payload Demo
+description: Use tool node with custom payload and conditional routing
+entry_point: START
+nodes:
+  - id: START
+    name: Start
+    type: start
+  - id: call_calculator
+    name: Calculator Tool
+    type: tool
+    tool_id: calculator
+    config:
+      payload:
+        expression: "6 * 7"
+    input_mapping:
+      expression: $.expression
+    output_mapping:
+      calc_result: $.response
+  - id: check_result
+    name: Result Router
+    type: custom
+  - id: END
+    name: End
+    type: end
+edges:
+  - id: start_to_calc
+    source: START
+    target: call_calculator
+    type: normal
+  - id: calc_to_router
+    source: call_calculator
+    target: check_result
+    type: normal
+  - id: route_to_end
+    source: check_result
+    target: END
+    type: conditional
+    condition: $.calc_result.result
+    condition_value: 42
+metadata:
+  tags:
+    - tool
+    - conditional

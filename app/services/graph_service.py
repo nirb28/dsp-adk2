@@ -4,7 +4,7 @@ from typing import Dict, Any, List, Optional
 
 from langgraph.graph import StateGraph, END
 
-from app.models import GraphConfig, GraphNodeType, GraphExecutionResponse
+from app.models import GraphConfig, GraphNodeType, GraphExecutionResponse, GraphEdgeType
 from app.services.yaml_service import YAMLService
 from app.services.agent_service import AgentService
 from app.services.tool_service import ToolService
@@ -49,7 +49,7 @@ class GraphService:
             node_configs = {node.id: node for node in graph_config.nodes}
 
             def _get_value_from_state(path: str, state: Dict[str, Any]) -> Any:
-                if not path.startswith("$." ):
+                if not path.startswith("$."):
                     return state.get(path, path)
                 parts = path[2:].split(".")
                 value: Any = state
@@ -66,7 +66,14 @@ class GraphService:
                 payload: Dict[str, Any] = {}
                 for key, value in mapping.items():
                     if isinstance(value, str):
-                        payload[key] = _get_value_from_state(value, state)
+                        resolved = _get_value_from_state(value, state)
+                        if resolved == value and "{{" in value:
+                            rendered = value
+                            for state_key, state_value in state.items():
+                                rendered = rendered.replace(f"{{{{ {state_key} }}}}", str(state_value))
+                            payload[key] = rendered
+                        else:
+                            payload[key] = resolved
                     else:
                         payload[key] = value
                 return payload
@@ -93,6 +100,10 @@ class GraphService:
                     elif node_config.type == GraphNodeType.TOOL:
                         tool_name = node_config.tool_id
                         tool_payload = _apply_mapping(node_config.input_mapping, state)
+                        payload_override = node_config.config.get("payload", {}) if isinstance(node_config.config, dict) else {}
+                        if payload_override:
+                            resolved_override = _apply_mapping(payload_override, state)
+                            tool_payload = {**resolved_override, **tool_payload}
                         result = await ToolService.execute_tool(tool_name, tool_payload)
                         if not result.success:
                             raise RuntimeError(result.error or "Tool execution failed")
@@ -111,10 +122,37 @@ class GraphService:
 
             workflow.set_entry_point(entry_point)
 
+            edges_by_source: Dict[str, List[Any]] = {}
             for edge in graph_config.edges:
-                source = END if edge.source == "END" else edge.source
-                target = END if edge.target == "END" else edge.target
-                workflow.add_edge(source, target)
+                edges_by_source.setdefault(edge.source, []).append(edge)
+
+            for source, edges in edges_by_source.items():
+                has_conditional = any(edge.type == GraphEdgeType.CONDITIONAL for edge in edges)
+                if has_conditional:
+                    conditional_edges = [edge for edge in edges if edge.type == GraphEdgeType.CONDITIONAL]
+
+                    def route(state: Dict[str, Any], edge_set: List[Any] = conditional_edges) -> str:
+                        for edge in edge_set:
+                            if edge.condition:
+                                value = _get_value_from_state(edge.condition, state)
+                            else:
+                                value = None
+
+                            if edge.condition_value is not None:
+                                if value == edge.condition_value:
+                                    return END if edge.target == "END" else edge.target
+                            else:
+                                if value:
+                                    return END if edge.target == "END" else edge.target
+                        return END
+
+                    workflow.add_conditional_edges(source, route)
+
+                normal_edges = [edge for edge in edges if edge.type == GraphEdgeType.NORMAL]
+                for edge in normal_edges:
+                    source_node = END if edge.source == "END" else edge.source
+                    target_node = END if edge.target == "END" else edge.target
+                    workflow.add_edge(source_node, target_node)
 
             compiled = workflow.compile()
             final_state = await compiled.ainvoke(input_data)

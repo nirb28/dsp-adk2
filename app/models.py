@@ -71,6 +71,7 @@ class GraphNodeType(str, Enum):
 
 class GraphEdgeType(str, Enum):
     NORMAL = "normal"
+    CONDITIONAL = "conditional"
 
 
 class GraphNode(BaseModel):
@@ -91,6 +92,8 @@ class GraphEdge(BaseModel):
     source: str = Field(description="Source node ID")
     target: str = Field(description="Target node ID")
     type: GraphEdgeType = Field(default=GraphEdgeType.NORMAL)
+    condition: Optional[str] = Field(default=None, description="Condition expression for conditional edges")
+    condition_value: Optional[Any] = Field(default=None, description="Optional match value for conditional edges")
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
 

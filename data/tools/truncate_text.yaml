@@ -1,0 +1,22 @@
+name: truncate_text
+description: Truncate long text to a maximum number of characters
+
+type: function
+module_path: app.tools.basic_tools
+function_name: truncate_text
+parameters:
+  - name: text
+    type: string
+    description: Text to truncate
+    required: true
+  - name: max_chars
+    type: number
+    description: Maximum number of characters to keep
+    required: false
+  - name: suffix
+    type: string
+    description: Suffix appended when truncating
+    required: false
+metadata:
+  category: text
+  version: "1.0"

@@ -89,3 +89,20 @@ def json_stringify(data: Dict[str, Any], indent: int = 2) -> str:
         return json.dumps(data, indent=indent)
     except Exception as e:
         return json.dumps({"error": str(e)})
+
+
+def truncate_text(text: str, max_chars: int = 2000, suffix: str = "...") -> Dict[str, Any]:
+    """Truncate text to a maximum number of characters."""
+    if max_chars < 1:
+        return {"error": "max_chars must be >= 1"}
+
+    if len(text) <= max_chars:
+        return {"result": text, "truncated": False, "original_length": len(text)}
+
+    trimmed = text[: max_chars - len(suffix)] + suffix if len(suffix) < max_chars else text[:max_chars]
+    return {
+        "result": trimmed,
+        "truncated": True,
+        "original_length": len(text),
+        "final_length": len(trimmed),
+    }
