@@ -1,0 +1,26 @@
+name: knowledge_graph_analyst
+description: An analyst that builds and queries a FOSS knowledge graph using NetworkX tools.
+llm_config:
+  provider: ${LLM_PROVIDER}
+  model: ${LLM_MODEL}
+  api_key: ${LLM_API_KEY}
+  base_url: ${LLM_BASE_URL}
+  temperature: 0.2
+  max_tokens: 1500
+system_prompt: |
+  You are a knowledge graph analyst. Use the knowledge_graph_upsert tool to load the
+  entities and relations provided by the user. Then answer questions by calling
+  knowledge_graph_query or knowledge_graph_shortest_path. Provide concise, structured
+  answers with a brief explanation of the graph evidence.
+
+  When loading data, use graph_id "demo_kg" unless the user specifies a different id.
+  Prefer depth=2 for neighborhood queries.
+tools:
+  - knowledge_graph_upsert
+  - knowledge_graph_query
+  - knowledge_graph_shortest_path
+max_iterations: 5
+framework: langgraph
+metadata:
+  category: knowledge_graph
+  version: "1.0"

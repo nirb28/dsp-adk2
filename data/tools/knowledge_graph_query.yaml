@@ -1,0 +1,29 @@
+name: knowledge_graph_query
+description: Query a node neighborhood from the in-memory knowledge graph.
+
+type: function
+module_path: app.tools.knowledge_graph_tools
+function_name: knowledge_graph_query
+
+parameters:
+  - name: graph_id
+    type: string
+    description: Graph identifier.
+    required: true
+  - name: node_id
+    type: string
+    description: Node identifier to explore.
+    required: true
+  - name: depth
+    type: number
+    description: Neighborhood depth to explore.
+    required: false
+    default: 1
+  - name: relation_filter
+    type: string
+    description: Optional relation/type filter.
+    required: false
+
+metadata:
+  category: knowledge_graph
+  version: "1.0"

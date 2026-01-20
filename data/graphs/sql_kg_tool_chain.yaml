@@ -1,0 +1,132 @@
+id: sql-kg-tool-chain
+name: SQL + Knowledge Graph Tool Chain
+description: Run SQL via text_to_sql, then load results into a knowledge graph and query it.
+entry_point: START
+nodes:
+  - id: START
+    name: Start
+    type: start
+  - id: sql_entities
+    name: SQL Entities
+    type: tool
+    tool_id: text_to_sql
+    config:
+      payload:
+        question: |
+          Return rows with entity fields for a knowledge graph. Include columns:
+          id, name, type, revenue, region. Use paid/fulfilled orders only.
+        schema: |
+          TABLE regions (id INTEGER PRIMARY KEY, name TEXT)
+          TABLE customers (id INTEGER PRIMARY KEY, name TEXT, segment TEXT, region_id INTEGER, FOREIGN KEY (region_id) REFERENCES regions(id))
+          TABLE orders (id INTEGER PRIMARY KEY, customer_id INTEGER, order_date TEXT, status TEXT, channel TEXT, FOREIGN KEY (customer_id) REFERENCES customers(id))
+          TABLE order_items (id INTEGER PRIMARY KEY, order_id INTEGER, product_id INTEGER, quantity INTEGER, unit_price REAL, FOREIGN KEY (order_id) REFERENCES orders(id))
+        sample_queries: |
+          SELECT c.segment AS name, r.name AS region, SUM(oi.quantity * oi.unit_price) AS revenue
+          FROM order_items oi
+          JOIN orders o ON oi.order_id = o.id
+          JOIN customers c ON o.customer_id = c.id
+          JOIN regions r ON c.region_id = r.id
+          WHERE o.status = 'fulfilled'
+          GROUP BY c.segment, r.name
+          ORDER BY revenue DESC;
+        sample_data: |
+          regions: (1, North), (2, South), (3, West)
+          customers: (1, Acme Corp, enterprise, 1), (2, Bluefield LLC, mid_market, 2)
+          orders: (1, 1, 2024-01-12, fulfilled, online)
+          order_items: (1, 1, 1, 1, 2500.0)
+        context: |-
+          Use SQLite. Build ids like segment_enterprise_north using segment and region.
+        dialect: sqlite
+        execute: true
+    input_mapping:
+      db_path: $.db_path
+    output_mapping:
+      entity_rows: $.response.rows
+  - id: sql_relations
+    name: SQL Relations
+    type: tool
+    tool_id: text_to_sql
+    config:
+      payload:
+        question: |
+          Return rows with relation fields for a knowledge graph. Include columns:
+          source, target, relation. Use paid/fulfilled orders only.
+        schema: |
+          TABLE regions (id INTEGER PRIMARY KEY, name TEXT)
+          TABLE customers (id INTEGER PRIMARY KEY, name TEXT, segment TEXT, region_id INTEGER, FOREIGN KEY (region_id) REFERENCES regions(id))
+          TABLE orders (id INTEGER PRIMARY KEY, customer_id INTEGER, order_date TEXT, status TEXT, channel TEXT, FOREIGN KEY (customer_id) REFERENCES customers(id))
+          TABLE order_items (id INTEGER PRIMARY KEY, order_id INTEGER, product_id INTEGER, quantity INTEGER, unit_price REAL, FOREIGN KEY (order_id) REFERENCES orders(id))
+        sample_queries: |
+          SELECT
+            'segment_' || c.segment || '_' || lower(r.name) AS source,
+            'region_' || lower(r.name) AS target,
+            'operates_in' AS relation
+          FROM customers c
+          JOIN regions r ON c.region_id = r.id
+          GROUP BY c.segment, r.name;
+        sample_data: |
+          regions: (1, North), (2, South), (3, West)
+          customers: (1, Acme Corp, enterprise, 1), (2, Bluefield LLC, mid_market, 2)
+        context: |-
+          Use SQLite. Use source ids that match the entity ids from the entities query.
+        dialect: sqlite
+        execute: true
+    input_mapping:
+      db_path: $.db_path
+    output_mapping:
+      relation_rows: $.response.rows
+  - id: kg_upsert
+    name: Upsert Knowledge Graph
+    type: tool
+    tool_id: knowledge_graph_upsert
+    config:
+      payload:
+        graph_id: sql_kg_demo
+        overwrite: true
+        directed: true
+    input_mapping:
+      entities: $.entity_rows
+      relations: $.relation_rows
+    output_mapping:
+      kg_result: $.response
+  - id: kg_query
+    name: Query Knowledge Graph
+    type: tool
+    tool_id: knowledge_graph_query
+    config:
+      payload:
+        graph_id: sql_kg_demo
+        depth: 2
+    input_mapping:
+      node_id: $.focus_node
+    output_mapping:
+      kg_neighbors: $.response
+  - id: END
+    name: End
+    type: end
+edges:
+  - id: start_to_entities
+    source: START
+    target: sql_entities
+    type: normal
+  - id: entities_to_relations
+    source: sql_entities
+    target: sql_relations
+    type: normal
+  - id: relations_to_upsert
+    source: sql_relations
+    target: kg_upsert
+    type: normal
+  - id: upsert_to_query
+    source: kg_upsert
+    target: kg_query
+    type: normal
+  - id: query_to_end
+    source: kg_query
+    target: END
+    type: normal
+metadata:
+  tags:
+    - knowledge_graph
+    - sql
+    - tool_chain

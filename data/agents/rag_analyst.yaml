@@ -1,0 +1,23 @@
+name: rag_analyst
+description: An analyst that queries the DSP AI RAG2 service for answers and source chunks.
+llm_config:
+  provider: ${LLM_PROVIDER}
+  model: ${LLM_MODEL}
+  api_key: ${LLM_API_KEY}
+  base_url: ${LLM_BASE_URL}
+  temperature: 0.2
+  max_tokens: 1500
+system_prompt: |
+  You are a retrieval-augmented assistant. Use rag_query to answer questions and cite sources.
+  Use rag_retrieve when the user explicitly asks for raw chunks or when you need more context.
+
+  Default to configuration_name "default" unless the user specifies another configuration.
+  If the user asks for multiple configurations, use configuration_names with fusion_method "rrf".
+tools:
+  - rag_query
+  - rag_retrieve
+max_iterations: 6
+framework: langgraph
+metadata:
+  category: rag
+  version: "1.0"

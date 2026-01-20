@@ -1,0 +1,29 @@
+name: knowledge_graph_shortest_path
+description: Find the shortest path between two nodes in the knowledge graph.
+
+type: function
+module_path: app.tools.knowledge_graph_tools
+function_name: knowledge_graph_shortest_path
+
+parameters:
+  - name: graph_id
+    type: string
+    description: Graph identifier.
+    required: true
+  - name: source
+    type: string
+    description: Source node identifier.
+    required: true
+  - name: target
+    type: string
+    description: Target node identifier.
+    required: true
+  - name: max_depth
+    type: number
+    description: Maximum allowed path length.
+    required: false
+    default: 4
+
+metadata:
+  category: knowledge_graph
+  version: "1.0"

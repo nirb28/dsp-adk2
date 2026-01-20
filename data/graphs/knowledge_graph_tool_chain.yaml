@@ -1,0 +1,95 @@
+id: knowledge-graph-tool-chain
+name: Knowledge Graph Tool Chain
+description: Chain knowledge graph tools (upsert, query, shortest path) in a single flow.
+entry_point: START
+nodes:
+  - id: START
+    name: Start
+    type: start
+  - id: upsert_graph
+    name: Upsert Knowledge Graph
+    type: tool
+    tool_id: knowledge_graph_upsert
+    config:
+      payload:
+        graph_id: demo_kg
+        overwrite: true
+        directed: true
+        entities:
+          - id: product_ai
+            type: product
+            name: DSP AI Platform
+          - id: product_fd2
+            type: product
+            name: DSP Front Door
+          - id: product_ct
+            type: product
+            name: DSP Control Tower
+          - id: service_auth
+            type: service
+            name: JWT Auth Service
+          - id: service_obs
+            type: service
+            name: Observability Stack
+        relations:
+          - source: product_fd2
+            target: service_auth
+            relation: depends_on
+          - source: product_fd2
+            target: service_obs
+            relation: depends_on
+          - source: product_ct
+            target: service_auth
+            relation: depends_on
+          - source: product_ct
+            target: product_fd2
+            relation: integrates_with
+    output_mapping:
+      upsert_result: $.response
+  - id: query_neighbors
+    name: Query Control Tower Neighbors
+    type: tool
+    tool_id: knowledge_graph_query
+    config:
+      payload:
+        graph_id: demo_kg
+        node_id: product_ct
+        depth: 2
+    output_mapping:
+      neighbors: $.response
+  - id: shortest_path
+    name: Shortest Path to AI Platform
+    type: tool
+    tool_id: knowledge_graph_shortest_path
+    config:
+      payload:
+        graph_id: demo_kg
+        source: product_ct
+        target: product_ai
+        max_depth: 4
+    output_mapping:
+      path_result: $.response
+  - id: END
+    name: End
+    type: end
+edges:
+  - id: start_to_upsert
+    source: START
+    target: upsert_graph
+    type: normal
+  - id: upsert_to_query
+    source: upsert_graph
+    target: query_neighbors
+    type: normal
+  - id: query_to_path
+    source: query_neighbors
+    target: shortest_path
+    type: normal
+  - id: path_to_end
+    source: shortest_path
+    target: END
+    type: normal
+metadata:
+  tags:
+    - knowledge_graph
+    - tool_chain

@@ -1,0 +1,66 @@
+name: rag_query
+description: Query the DSP AI RAG2 /query endpoint for answers with sources.
+type: function
+module_path: app.tools.rag_tools
+function_name: rag_query
+parameters:
+  - name: query
+    type: string
+    description: The user question to answer.
+    required: true
+  - name: configuration_name
+    type: string
+    description: RAG configuration to query.
+    required: false
+    default: default
+  - name: k
+    type: number
+    description: Number of context chunks to retrieve.
+    required: false
+    default: 5
+  - name: similarity_threshold
+    type: number
+    description: Optional minimum similarity score.
+    required: false
+  - name: include_metadata
+    type: boolean
+    description: Include metadata for sources.
+    required: false
+    default: true
+  - name: context_items
+    type: array
+    description: Optional context items (chat history) to inject.
+    required: false
+  - name: config
+    type: object
+    description: Optional config override for generation/embedding/vector store.
+    required: false
+  - name: filter_after_reranking
+    type: boolean
+    description: Apply score threshold after reranking.
+    required: false
+    default: true
+  - name: query_expansion
+    type: object
+    description: Optional query expansion configuration.
+    required: false
+  - name: filter
+    type: object
+    description: LangChain-style metadata filter.
+    required: false
+  - name: debug
+    type: boolean
+    description: Enable debug logging on the RAG server.
+    required: false
+    default: false
+  - name: authorization
+    type: string
+    description: Optional Authorization header value.
+    required: false
+  - name: base_url
+    type: string
+    description: Override RAG base URL (defaults to DSP_AI_RAG2_BASE_URL).
+    required: false
+metadata:
+  category: rag
+  version: "1.0"

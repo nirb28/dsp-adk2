@@ -1,0 +1,21 @@
+name: splunk_analyst
+description: An analyst that queries Splunk indexes and summarizes results.
+llm_config:
+  provider: ${LLM_PROVIDER}
+  model: ${LLM_MODEL}
+  api_key: ${LLM_API_KEY}
+  base_url: ${LLM_BASE_URL}
+  temperature: 0.2
+  max_tokens: 1500
+system_prompt: |
+  You are a Splunk analyst. Use splunk_search to fetch events from the requested indexes.
+  Ask for missing details like time ranges or indexes when needed. Summarize results and
+  highlight anomalies or trends. Include counts when possible.
+
+tools:
+  - splunk_search
+max_iterations: 6
+framework: langgraph
+metadata:
+  category: splunk
+  version: "1.0"

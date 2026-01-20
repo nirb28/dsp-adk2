@@ -1,0 +1,51 @@
+name: splunk_search
+description: Query Splunk indexes using the search jobs export endpoint.
+type: function
+module_path: app.tools.splunk_tools
+function_name: splunk_search
+parameters:
+  - name: query
+    type: string
+    description: SPL search clause or keywords (ignored if search is provided).
+    required: true
+  - name: indexes
+    type: array
+    description: Optional list of Splunk index names to search.
+    required: false
+  - name: search
+    type: string
+    description: Full SPL search string (overrides query/indexes).
+    required: false
+  - name: earliest_time
+    type: string
+    description: Optional earliest time (e.g., -24h, 2024-01-01T00:00:00Z).
+    required: false
+  - name: latest_time
+    type: string
+    description: Optional latest time (e.g., now, 2024-01-02T00:00:00Z).
+    required: false
+  - name: max_count
+    type: number
+    description: Maximum number of events to return.
+    required: false
+  - name: output_mode
+    type: string
+    description: Splunk output mode (json, csv, xml).
+    required: false
+    default: json
+  - name: base_url
+    type: string
+    description: Splunk API base URL (defaults to SPLUNK_BASE_URL).
+    required: false
+  - name: token
+    type: string
+    description: Splunk auth token (defaults to SPLUNK_TOKEN).
+    required: false
+  - name: verify_ssl
+    type: boolean
+    description: Verify TLS certificates.
+    required: false
+    default: true
+metadata:
+  category: splunk
+  version: "1.0"
