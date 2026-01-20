@@ -21,13 +21,18 @@ class ToolService:
     ) -> ToolExecutionResponse:
         """Execute a tool by name with given parameters."""
         start_time = time.time()
+
+        normalized_parameters = dict(parameters)
+        nested_kwargs = normalized_parameters.pop("kwargs", None)
+        if isinstance(nested_kwargs, dict):
+            normalized_parameters = {**nested_kwargs, **normalized_parameters}
         
         ToolService.logger.debug(f"Executing tool: {tool_name}")
 
         if settings.debug_trace:
             ToolService.logger.debug(
                 "Tool request: %s",
-                json.dumps({"tool_name": tool_name, "parameters": parameters}, default=str)
+                json.dumps({"tool_name": tool_name, "parameters": normalized_parameters}, default=str)
             )
         
         tool_config = YAMLService.load_tool(tool_name)
@@ -44,11 +49,11 @@ class ToolService:
         try:
             ToolService.logger.debug(f"Tool type: {tool_config.type}")
             if tool_config.type == ToolType.FUNCTION:
-                result = await ToolService._execute_function_tool(tool_config, parameters, llm_override)
+                result = await ToolService._execute_function_tool(tool_config, normalized_parameters, llm_override)
             elif tool_config.type == ToolType.API:
-                result = await ToolService._execute_api_tool(tool_config, parameters)
+                result = await ToolService._execute_api_tool(tool_config, normalized_parameters)
             elif tool_config.type == ToolType.PYTHON:
-                result = await ToolService._execute_python_tool(tool_config, parameters, llm_override)
+                result = await ToolService._execute_python_tool(tool_config, normalized_parameters, llm_override)
             else:
                 raise ValueError(f"Unsupported tool type: {tool_config.type}")
             

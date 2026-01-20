@@ -583,7 +583,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"agent_name\": \"simple_assistant\",\r\n  \"input\": \"Calculate the length of the text 'Hello World' and then multiply it by 5\",\r\n  \"context\": {}\r\n}\r\n",
+              "raw": "{\r\n  \"agent_name\": \"simple_assistant\",\r\n  \"input\": \"Calculate the length of the text 'Hello World' and then multiply it by 5\",\r\n  \"context\": {},\r\n  \"llm_override\": {\r\n    \"provider\": \"openai\",\r\n    \"model\": \"gpt-4.1-nano\",\r\n    \"base_url\": \"${AZURE_OPENAI_BASE_URL}\",\r\n    \"api_key\": \"${AZURE_OPENAI_API_KEY}\",\r\n    \"temperature\": 0.2,\r\n    \"max_tokens\": 800,\r\n    \"additional_params\": {\r\n      \"top_p\": 0.9\r\n    }\r\n  }  \r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -638,6 +638,33 @@
             "body": {
               "mode": "raw",
               "raw": "{\r\n  \"agent_name\": \"metadata_analyst\",\r\n  \"input\": \"Generate column metadata for every table and column.\\n\\nschema:\\nTABLE customers (\\n  id INTEGER PRIMARY KEY,\\n  name TEXT,\\n  segment TEXT\\n)\\n\\nTABLE orders (\\n  id INTEGER PRIMARY KEY,\\n  customer_id INTEGER,\\n  order_total REAL,\\n  order_date TEXT,\\n  FOREIGN KEY (customer_id) REFERENCES customers(id)\\n)\\n\\nsample_metadata:\\n{\\n  \\\"tables\\\": [\\n    {\\n      \\\"table\\\": \\\"customers\\\",\\n      \\\"description\\\": \\\"Master list of customers.\\\",\\n      \\\"columns\\\": [\\n        {\\n          \\\"name\\\": \\\"id\\\",\\n          \\\"data_type\\\": \\\"INTEGER\\\",\\n          \\\"description\\\": \\\"Unique customer identifier.\\\",\\n          \\\"nullable\\\": false,\\n          \\\"example_values\\\": [1, 2, 3],\\n          \\\"pii\\\": false\\n        }\\n      ]\\n    }\\n  ]\\n}\\n\\ncontext: B2B SaaS order management\\n\\ndialect: sqlite\",\r\n  \"context\": {}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{adk2-baseUrl}}/execute/agent",
+              "host": [
+                "{{adk2-baseUrl}}"
+              ],
+              "path": [
+                "execute",
+                "agent"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "check_fraud_analyst",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"agent_name\": \"check_fraud_analyst\",\r\n  \"input\": \"Analyze this check image.\\n\\n image_url: https://raw.githubusercontent.com/nirb28/dsp-adk2/refs/heads/main/examples/check_fraud/images/sample_fraud_check.jpg\\n model: meta/llama-3.2-90b-vision-instruct\",\r\n  \"context\": {}\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -979,7 +1006,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n  \"graph_id\": \"research_summarize\",\r\n  \"input\": {\r\n    \"topic\": \"Impact of retrieval augmented generation\"\r\n  },\r\n  \"context\": {}\r\n}",
+                  "raw": "{\r\n  \"graph_id\": \"research_summarize\",\r\n  \"input\": {\r\n    \"topic\": \"Impact of retrieval augmented generation\"\r\n  },\r\n  \"context\": {},\r\n  \"llm_override\": {\r\n    \"provider\": \"openai\",\r\n    \"model\": \"gpt-4.1-nano\",\r\n    \"base_url\": \"https://dalje-mk60vkf4-eastus2.openai.azure.com/openai/v1\",\r\n    \"api_key\": \"${AZURE_OPENAI_API_KEY}\",\r\n    \"temperature\": 0.2,\r\n    \"max_tokens\": 800,\r\n    \"additional_params\": {\r\n      \"top_p\": 0.9\r\n    }\r\n  }    \r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1003,13 +1030,13 @@
               "body": null
             },
             {
-              "name": "tool_payload_demo",
+              "name": "tool_payload_demo (no llm)",
               "originalRequest": {
                 "method": "POST",
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n  \"graph_id\": \"tool_payload_demo\",\r\n  \"input\": {\r\n    \"expression\": \"21 * 2\"\r\n  },\r\n  \"context\": {}\r\n}",
+                  "raw": "{\r\n  \"graph_id\": \"tool_payload_demo\",\r\n  \"input\": {\r\n    \"expression\": \"21 * 2\"\r\n  }\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
