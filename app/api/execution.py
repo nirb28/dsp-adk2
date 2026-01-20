@@ -17,7 +17,11 @@ router = APIRouter(prefix="/execute", tags=["Execution"])
 @router.post("/tool", response_model=ToolExecutionResponse)
 async def execute_tool(request: ToolExecutionRequest):
     """Execute a tool with given parameters."""
-    result = await ToolService.execute_tool(request.tool_name, request.parameters)
+    result = await ToolService.execute_tool(
+        request.tool_name,
+        request.parameters,
+        request.llm_override,
+    )
     
     if not result.success:
         raise HTTPException(
@@ -35,6 +39,7 @@ async def execute_graph(request: GraphExecutionRequest):
         request.graph_id,
         request.input,
         request.context,
+        request.llm_override,
     )
 
     if not result.success:
@@ -52,7 +57,8 @@ async def execute_agent(request: AgentExecutionRequest):
     result = await AgentService.execute_agent(
         request.agent_name,
         request.input,
-        request.context
+        request.context,
+        request.llm_override,
     )
     
     if not result.success:

@@ -4,7 +4,7 @@ import sqlite3
 from typing import Any, Dict, List, Optional
 
 from app.config import settings
-from app.models import LLMConfig
+from app.models import LLMConfig, LLMOverride
 from app.services.llm_service import LLMService
 
 
@@ -76,6 +76,7 @@ def text_to_sql(
     execute: bool = False,
     db_path: str = "",
     sql: Optional[str] = None,
+    llm_override: Optional[LLMOverride] = None,
     **_: Any,
 ) -> Dict[str, Any]:
     """Generate SQL from natural language using schema, samples, and context."""
@@ -87,6 +88,7 @@ def text_to_sql(
         temperature=settings.llm_temperature,
         max_tokens=settings.llm_max_tokens,
     )
+    llm_config = LLMService.resolve_llm_config(llm_config, llm_override)
 
     system_prompt = (
         "You are a database analyst. Generate a single SQL query that answers the user question. "

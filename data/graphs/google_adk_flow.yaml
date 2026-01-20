@@ -1,0 +1,40 @@
+id: google-adk-flow
+name: Google ADK Flow
+description: Sequential Google ADK flow (writer -> editor)
+type: google_adk
+entry_point: START
+nodes:
+  - id: START
+    name: Start
+    type: start
+  - id: writer
+    name: Writer Agent
+    type: agent
+    agent_id: google_adk_writer
+  - id: editor
+    name: Editor Agent
+    type: agent
+    agent_id: google_adk_editor
+  - id: END
+    name: End
+    type: end
+edges:
+  - id: start_to_writer
+    source: START
+    target: writer
+    type: normal
+  - id: writer_to_editor
+    source: writer
+    target: editor
+    type: normal
+  - id: editor_to_end
+    source: editor
+    target: END
+    type: normal
+metadata:
+  tags:
+    - google_adk
+    - sequential
+  app_name: google_adk_flow
+  user_id: demo-user
+  session_id: demo-session

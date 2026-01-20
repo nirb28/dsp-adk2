@@ -19,6 +19,16 @@ class LLMConfig(BaseModel):
     additional_params: Dict[str, Any] = Field(default_factory=dict)
 
 
+class LLMOverride(BaseModel):
+    provider: Optional[str] = Field(default=None, description="LLM provider override")
+    model: Optional[str] = Field(default=None, description="Model override")
+    api_key: Optional[str] = Field(default=None, description="API key override")
+    base_url: Optional[str] = Field(default=None, description="Base URL override")
+    temperature: Optional[float] = Field(default=None, ge=0.0, le=2.0)
+    max_tokens: Optional[int] = Field(default=None, ge=1)
+    additional_params: Optional[Dict[str, Any]] = Field(default=None)
+
+
 class ToolParameter(BaseModel):
     name: str
     type: str = Field(description="Parameter type (string, number, boolean, object, array)")
@@ -59,6 +69,7 @@ class AgentConfig(BaseModel):
 
 class GraphType(str, Enum):
     LANGGRAPH = "langgraph"
+    GOOGLE_ADK = "google_adk"
 
 
 class GraphNodeType(str, Enum):
@@ -117,6 +128,7 @@ class GraphExecutionRequest(BaseModel):
     graph_id: str
     input: Dict[str, Any] = Field(default_factory=dict)
     context: Dict[str, Any] = Field(default_factory=dict)
+    llm_override: Optional[LLMOverride] = None
 
 
 class GraphExecutionResponse(BaseModel):
@@ -131,6 +143,7 @@ class GraphExecutionResponse(BaseModel):
 class ToolExecutionRequest(BaseModel):
     tool_name: str
     parameters: Dict[str, Any] = Field(default_factory=dict)
+    llm_override: Optional[LLMOverride] = None
 
 
 class ToolExecutionResponse(BaseModel):
@@ -146,6 +159,7 @@ class AgentExecutionRequest(BaseModel):
     input: str
     context: Dict[str, Any] = Field(default_factory=dict)
     stream: bool = Field(default=False)
+    llm_override: Optional[LLMOverride] = None
 
 
 class AgentExecutionResponse(BaseModel):

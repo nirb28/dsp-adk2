@@ -2,7 +2,7 @@ import json
 from typing import Any, Dict, Optional
 
 from app.config import settings
-from app.models import LLMConfig
+from app.models import LLMConfig, LLMOverride
 from app.services.llm_service import LLMService
 
 
@@ -53,6 +53,7 @@ def column_metadata(
     sample_metadata: str,
     context: Optional[str] = None,
     dialect: str = "sqlite",
+    llm_override: Optional[LLMOverride] = None,
     **_: Any,
 ) -> Dict[str, Any]:
     """Generate column metadata for all tables in a schema using LLM."""
@@ -64,6 +65,7 @@ def column_metadata(
         temperature=settings.llm_temperature,
         max_tokens=settings.llm_max_tokens,
     )
+    llm_config = LLMService.resolve_llm_config(llm_config, llm_override)
 
     system_prompt = (
         "You are a data catalog assistant. Generate metadata for every column in the schema. "

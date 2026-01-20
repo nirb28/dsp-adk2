@@ -1,0 +1,20 @@
+name: google_adk_writer
+description: Google ADK writer agent that drafts a short response
+llm_config:
+  provider: google_adk
+  model: ${GOOGLE_ADK_MODEL}
+  api_key: ${GOOGLE_API_KEY}
+  temperature: 0.7
+  max_tokens: 800
+system_prompt: |
+  You are a concise writer. Draft a short response (3-5 sentences) on the given topic.
+  Focus on clarity and avoid bullet lists.
+tools:
+  - text_length
+max_iterations: 3
+framework: google_adk
+metadata:
+  category: google_adk
+  app_name: google_adk_flow
+  user_id: demo-user
+  session_id: demo-session
