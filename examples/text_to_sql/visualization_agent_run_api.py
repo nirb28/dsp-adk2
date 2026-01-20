@@ -137,8 +137,8 @@ async def main() -> None:
     base_url = os.getenv("ADK2_BASE_URL", "http://localhost:8200")
     db_path = Path(__file__).parent / "sample.db"
 
-    if os.getenv("ADK2_SETUP_DB", "true").lower() in {"1", "true", "yes"}:
-        ensure_sample_data(db_path)
+    # if os.getenv("ADK2_SETUP_DB", "true").lower() in {"1", "true", "yes"}:
+    #     ensure_sample_data(db_path)
 
     payload = {
         "agent_name": "visualization_analyst",
