@@ -10,7 +10,7 @@ def _expand_env_value(value: str, env_map: Dict[str, str]) -> str:
     pattern = r"\$\{([^}]+)\}"
     result = value
     for match in re.findall(pattern, value):
-        resolved = env_map.get(match) or os.getenv(match) or ""
+        resolved = os.getenv(match) or env_map.get(match) or ""
         result = result.replace(f"${{{match}}}", resolved)
     return result
 
