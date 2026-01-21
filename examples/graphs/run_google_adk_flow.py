@@ -8,7 +8,7 @@ async def main() -> None:
     base_url = os.getenv("ADK2_BASE_URL", "http://localhost:8200")
 
     payload = {
-        "graph_id": "google-adk-flow",
+        "graph_id": "google_adk_flow",
         "input": {"message": "Summarize how retrieval-augmented generation helps support analysts."},
         "context": {},
     }

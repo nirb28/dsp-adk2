@@ -6,8 +6,8 @@ import httpx
 
 def build_parameters() -> dict:
     return {
-        "query": "What is retrieval augmented generation?",
-        "configuration_name": "default",
+        "query": "What is Computer Vision?",
+        "configuration_name": "batch_ml_ai_basics_test",
         "k": 5,
     }
 
@@ -16,7 +16,7 @@ async def main() -> None:
     base_url = os.getenv("ADK2_BASE_URL", "http://localhost:8200")
 
     payload = {
-        "tool_name": "rag_query",
+        "tool_name": "rag_retrieve",
         "parameters": build_parameters(),
     }
 

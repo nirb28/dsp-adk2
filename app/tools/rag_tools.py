@@ -27,7 +27,7 @@ async def rag_query(
     base_url: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Call the DSP AI RAG2 /query endpoint."""
-    resolved_base_url = base_url or os.getenv("DSP_AI_RAG2_BASE_URL", "http://localhost:8080")
+    resolved_base_url = base_url or os.getenv("DSP_AI_RAG2_BASE_URL", "http://localhost:9000/api/v1")
 
     payload: Dict[str, Any] = {
         "query": query,
@@ -76,7 +76,7 @@ async def rag_retrieve(
     base_url: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Call the DSP AI RAG2 /retrieve endpoint."""
-    resolved_base_url = base_url or os.getenv("DSP_AI_RAG2_BASE_URL", "http://localhost:8080")
+    resolved_base_url = base_url or os.getenv("DSP_AI_RAG2_BASE_URL", "http://localhost:9000/api/v1")
 
     payload: Dict[str, Any] = {
         "query": query,

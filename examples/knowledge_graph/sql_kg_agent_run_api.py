@@ -24,7 +24,7 @@ def build_prompt(db_path: Path) -> str:
         "JOIN regions r ON c.region_id = r.id\n"
         "GROUP BY c.segment, r.name\n"
         "ORDER BY revenue DESC;\n\n"
-        "context: Use paid orders only and summarize top segments/regions.\n"
+        "context: Use all orders and summarize top segments/regions.\n"
         "dialect: sqlite\n\n"
         "After SQL results, upsert a knowledge graph with graph_id sql_kg_demo.\n"
         "Create entity nodes for each segment and region, plus revenue nodes.\n"
@@ -35,7 +35,7 @@ def build_prompt(db_path: Path) -> str:
 
 async def main() -> None:
     base_url = os.getenv("ADK2_BASE_URL", "http://localhost:8200")
-    db_path = Path(__file__).parent / "sample_complex.db"
+    db_path = Path(__file__).parent / "../text_to_sql/sample_complex.db"
 
     payload = {
         "agent_name": "sql_kg_analyst",

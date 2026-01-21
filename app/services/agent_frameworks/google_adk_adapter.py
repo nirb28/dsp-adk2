@@ -5,6 +5,7 @@ import os
 from typing import Dict, Any, List, Tuple, Optional
 
 from app.models import AgentConfig, LLMOverride
+from app.config import settings
 from app.services.llm_service import LLMService
 from app.services.agent_frameworks.base import AgentFramework
 from app.services.tool_service import ToolService
@@ -34,8 +35,9 @@ class GoogleADKAdapter(AgentFramework):
             ) from exc
 
         llm_config = LLMService.resolve_llm_config(agent_config.llm_config, llm_override)
-        if llm_config.api_key:
-            os.environ["GOOGLE_API_KEY"] = llm_config.api_key
+        google_api_key = llm_config.api_key or settings.llm_api_key
+        if google_api_key:
+            os.environ["GOOGLE_API_KEY"] = google_api_key
 
         tools = []
         for tool_name in agent_config.tools:

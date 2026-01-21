@@ -1,6 +1,7 @@
 import time
 import logging
 import os
+import re
 from typing import Dict, Any, List, Optional
 
 from langgraph.graph import StateGraph, END
@@ -11,6 +12,8 @@ from app.models import GraphConfig, GraphNodeType, GraphExecutionResponse, Graph
 from app.services.yaml_service import YAMLService
 from app.services.agent_service import AgentService
 from app.services.tool_service import ToolService
+from app.services.llm_service import LLMService
+from app.config import settings
 
 
 class GraphService:
@@ -289,23 +292,30 @@ class GraphService:
                 if not agent_config:
                     raise ValueError(f"Agent '{agent_name}' not found")
 
-                if agent_config.llm_config.api_key:
-                    os.environ["GOOGLE_API_KEY"] = agent_config.llm_config.api_key
+                llm_config = LLMService.resolve_llm_config(agent_config.llm_config, llm_override)
+                google_api_key = llm_config.api_key or settings.llm_api_key
+                if google_api_key:
+                    os.environ["GOOGLE_API_KEY"] = google_api_key
 
                 tools = build_tools(agent_config.tools)
 
                 sub_agents.append(
                     LlmAgent(
                         name=agent_config.name,
-                        model=agent_config.llm_config.model,
+                        model=llm_config.model,
                         instruction=agent_config.system_prompt,
                         description=agent_config.description,
                         tools=tools,
                     )
                 )
 
+            base_name = graph_config.name or graph_config.id
+            sanitized_name = re.sub(r"\W", "_", base_name)
+            if not re.match(r"^[A-Za-z_]", sanitized_name):
+                sanitized_name = f"adk_{sanitized_name}"
+
             root_agent = SequentialAgent(
-                name=graph_config.name,
+                name=sanitized_name,
                 sub_agents=sub_agents,
                 description=graph_config.description or "Google ADK flow",
             )

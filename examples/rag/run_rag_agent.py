@@ -7,10 +7,9 @@ import httpx
 def build_prompt() -> str:
     return (
         "Answer the question using the RAG service. If you need raw chunks, use rag_retrieve.\n\n"
-        "Question: What is retrieval augmented generation?\n"
-        "Configuration: default\n"
+        "Question: What is Computer Vision?\n"
+        "Configuration: batch_ml_ai_basics_test\n"
     )
-
 
 async def main() -> None:
     base_url = os.getenv("ADK2_BASE_URL", "http://localhost:8200")
