@@ -3,11 +3,14 @@ import logging
 import os
 import re
 from typing import Optional, Any
+
+import httpx
 from langchain_openai import ChatOpenAI
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, SystemMessage
 from app.models import LLMConfig, LLMOverride
 from app.config import settings
+from app.services.openai_http_logger import OpenAIHTTPLogger
 
 
 class LLMService:
@@ -99,9 +102,23 @@ class LLMService:
             if key not in reserved_keys
         }
 
+        http_client = httpx.Client(verify=settings.ssl_verify)
+        http_async_client = httpx.AsyncClient(verify=settings.ssl_verify)
+
+        def _build_client(client_cls, **kwargs):
+            try:
+                return client_cls(
+                    **kwargs,
+                    http_client=http_client,
+                    http_async_client=http_async_client,
+                )
+            except TypeError:
+                return client_cls(**kwargs)
+
         if llm_config.provider.lower() == "groq":
             LLMService.logger.debug(f"Using Groq provider with model: {llm_config.model}")
-            return ChatGroq(
+            return _build_client(
+                ChatGroq,
                 model=llm_config.model,
                 groq_api_key=api_key,
                 temperature=llm_config.temperature,
@@ -114,12 +131,20 @@ class LLMService:
                 base_url = base_url or "https://integrate.api.nvidia.com/v1"
             
             LLMService.logger.debug(f"Using {llm_config.provider} provider with model: {llm_config.model}, base_url: {base_url}")
-            return ChatOpenAI(
+            
+            callbacks = []
+            if settings.debug_trace:
+                callbacks.append(OpenAIHTTPLogger(enabled=True))
+                LLMService.logger.debug("OpenAI HTTP payload logging enabled")
+            
+            return _build_client(
+                ChatOpenAI,
                 model=llm_config.model,
                 api_key=api_key,
                 base_url=base_url,
                 temperature=llm_config.temperature,
                 max_tokens=llm_config.max_tokens,
+                callbacks=callbacks if callbacks else None,
                 **extra_params,
             )
         else:

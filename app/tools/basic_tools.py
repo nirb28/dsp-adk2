@@ -2,6 +2,8 @@ import httpx
 import json
 from typing import Dict, Any
 
+from app.config import settings
+
 
 def text_length(text: str) -> Dict[str, Any]:
     """Calculate the length of text."""
@@ -43,7 +45,7 @@ def calculator(expression: str) -> Dict[str, Any]:
 async def http_get(url: str, headers: Dict[str, str] = None) -> Dict[str, Any]:
     """Make an HTTP GET request."""
     try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(verify=settings.ssl_verify) as client:
             response = await client.get(url, headers=headers or {}, timeout=30.0)
             return {
                 "status_code": response.status_code,
@@ -58,7 +60,7 @@ async def http_get(url: str, headers: Dict[str, str] = None) -> Dict[str, Any]:
 async def http_post(url: str, data: Dict[str, Any] = None, headers: Dict[str, str] = None) -> Dict[str, Any]:
     """Make an HTTP POST request."""
     try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(verify=settings.ssl_verify) as client:
             response = await client.post(
                 url, 
                 json=data or {}, 

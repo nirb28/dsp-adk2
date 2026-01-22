@@ -54,6 +54,7 @@ class Settings(BaseSettings):
     app_port: int = Field(default=8200)
     auto_app_reload: bool = Field(default=False)
     debug_trace: bool = Field(default=False)
+    ssl_verify: bool = Field(default=True)
     
     data_dir: str = Field(default="./data")
     agents_dir: str = Field(default="./data/agents")

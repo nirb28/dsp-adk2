@@ -132,7 +132,7 @@ class ToolService:
         method = (tool_config.api_method or "GET").upper()
         headers = tool_config.api_headers or {}
         
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(verify=settings.ssl_verify) as client:
             if method == "GET":
                 response = await client.get(
                     tool_config.api_endpoint,

@@ -3,6 +3,8 @@ from typing import Any, Dict, Optional
 
 import httpx
 
+from app.config import settings
+
 
 def _build_headers(authorization: Optional[str] = None) -> Dict[str, str]:
     headers: Dict[str, str] = {}
@@ -45,7 +47,7 @@ async def rag_query(
 
     payload = {key: value for key, value in payload.items() if value is not None}
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(verify=settings.ssl_verify) as client:
         response = await client.post(
             f"{resolved_base_url}/query",
             json=payload,
@@ -98,7 +100,7 @@ async def rag_retrieve(
 
     payload = {key: value for key, value in payload.items() if value is not None}
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(verify=settings.ssl_verify) as client:
         response = await client.post(
             f"{resolved_base_url}/retrieve",
             json=payload,

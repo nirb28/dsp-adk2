@@ -57,7 +57,7 @@ async def analyze_image(
         "Authorization": f"Bearer {api_key}",
     }
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(verify=settings.ssl_verify) as client:
         response = await client.post(endpoint, json=payload, headers=headers, timeout=90.0)
         response.raise_for_status()
         data = response.json()

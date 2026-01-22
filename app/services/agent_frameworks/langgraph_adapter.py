@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 import operator
 from typing import Any, Dict, List, TypedDict, Annotated, Tuple, Optional
@@ -8,6 +9,7 @@ from langgraph.graph import StateGraph, END
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, ToolMessage, BaseMessage
 from langchain_core.tools import tool
 
+from app.config import settings
 from app.models import AgentConfig, LLMOverride
 from app.services.agent_frameworks.base import AgentFramework
 from app.services.llm_service import LLMService
@@ -86,8 +88,35 @@ class LangGraphAdapter(AgentFramework):
                 state["iteration"] = state.get("iteration", 0) + 1
                 self.logger.debug("agent_node: incrementing iteration to %s", state["iteration"])
 
+            if settings.debug_trace:
+                self.logger.debug(
+                    "LangGraph LLM request: %s",
+                    json.dumps(
+                        {
+                            "provider": llm_config.provider,
+                            "model": llm_config.model,
+                            "messages": [m.model_dump() for m in messages],
+                            "tool_names": [t.name for t in tools],
+                        },
+                        default=str,
+                    ),
+                )
+
             response = llm_with_tools.invoke(messages)
             messages.append(response)
+
+            if settings.debug_trace:
+                self.logger.debug(
+                    "LangGraph LLM response: %s",
+                    json.dumps(
+                        {
+                            "content": response.content,
+                            "tool_calls": getattr(response, "tool_calls", []),
+                            "additional": getattr(response, "additional_kwargs", {}),
+                        },
+                        default=str,
+                    ),
+                )
 
             steps.append(
                 {

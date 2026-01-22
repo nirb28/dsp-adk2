@@ -1,5 +1,6 @@
 import json
 import os
+from app.config import settings
 from typing import Any, Dict, List, Optional
 
 import httpx
@@ -35,7 +36,7 @@ async def splunk_search(
     output_mode: str = "json",
     base_url: Optional[str] = None,
     token: Optional[str] = None,
-    verify_ssl: bool = True,
+    verify_ssl: Optional[bool] = None,
 ) -> Dict[str, Any]:
     """Query Splunk using the search jobs export endpoint."""
     resolved_base_url = base_url or os.getenv("SPLUNK_BASE_URL", "http://localhost:8089")
@@ -61,7 +62,8 @@ async def splunk_search(
         "Authorization": f"Splunk {resolved_token}",
     }
 
-    async with httpx.AsyncClient(verify=verify_ssl) as client:
+    resolved_verify = settings.ssl_verify if verify_ssl is None else verify_ssl
+    async with httpx.AsyncClient(verify=resolved_verify) as client:
         response = await client.post(
             f"{resolved_base_url}/services/search/jobs/export",
             data=payload,
