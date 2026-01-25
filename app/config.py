@@ -49,6 +49,10 @@ class Settings(BaseSettings):
     llm_base_url: Optional[str] = Field(default=None)
     llm_temperature: float = Field(default=0.7)
     llm_max_tokens: int = Field(default=2000)
+    llm_send_additional_params: bool = Field(default=True)
+    llm_request_param_allowlist: Optional[str] = Field(default=None)
+    llm_request_param_denylist: Optional[str] = Field(default=None)
+    llm_request_param_rename: Optional[str] = Field(default=None)
     
     app_host: str = Field(default="0.0.0.0")
     app_port: int = Field(default=8200)

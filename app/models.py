@@ -17,6 +17,10 @@ class LLMConfig(BaseModel):
     temperature: float = Field(default=0.7, ge=0.0, le=2.0)
     max_tokens: int = Field(default=2000, ge=1)
     additional_params: Dict[str, Any] = Field(default_factory=dict)
+    send_additional_params: Optional[bool] = Field(default=None)
+    request_param_allowlist: Optional[str] = Field(default=None)
+    request_param_denylist: Optional[str] = Field(default=None)
+    request_param_rename: Optional[str] = Field(default=None)
 
 
 class LLMOverride(BaseModel):
@@ -27,6 +31,10 @@ class LLMOverride(BaseModel):
     temperature: Optional[float] = Field(default=None, ge=0.0, le=2.0)
     max_tokens: Optional[int] = Field(default=None, ge=1)
     additional_params: Optional[Dict[str, Any]] = Field(default=None)
+    send_additional_params: Optional[bool] = Field(default=None)
+    request_param_allowlist: Optional[str] = Field(default=None)
+    request_param_denylist: Optional[str] = Field(default=None)
+    request_param_rename: Optional[str] = Field(default=None)
 
 
 class ToolParameter(BaseModel):
