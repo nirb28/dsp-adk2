@@ -54,6 +54,31 @@ class LLMService:
         )
 
     @staticmethod
+    def _build_callbacks():
+        callbacks = []
+        if settings.debug_trace:
+            callbacks.append(OpenAIHTTPLogger(enabled=True))
+            LLMService.logger.debug("OpenAI HTTP payload logging enabled")
+
+        if settings.langfuse_enabled:
+            try:
+                from langfuse.langchain import CallbackHandler
+
+                if settings.langfuse_public_key:
+                    os.environ.setdefault("LANGFUSE_PUBLIC_KEY", settings.langfuse_public_key)
+                if settings.langfuse_secret_key:
+                    os.environ.setdefault("LANGFUSE_SECRET_KEY", settings.langfuse_secret_key)
+                if settings.langfuse_host:
+                    os.environ.setdefault("LANGFUSE_HOST", settings.langfuse_host)
+
+                callbacks.append(CallbackHandler())
+                LLMService.logger.debug("Langfuse callback enabled")
+            except Exception as exc:
+                LLMService.logger.warning("Langfuse callback disabled: %s", exc)
+
+        return callbacks
+
+    @staticmethod
     def resolve_llm_config(
         base_config: Optional[LLMConfig] = None,
         override: Optional[LLMOverride] = None,
@@ -117,12 +142,14 @@ class LLMService:
 
         if llm_config.provider.lower() == "groq":
             LLMService.logger.debug(f"Using Groq provider with model: {llm_config.model}")
+            callbacks = LLMService._build_callbacks()
             return _build_client(
                 ChatGroq,
                 model=llm_config.model,
                 groq_api_key=api_key,
                 temperature=llm_config.temperature,
                 max_tokens=llm_config.max_tokens,
+                callbacks=callbacks if callbacks else None,
                 **extra_params,
             )
         elif llm_config.provider.lower() in ["openai", "nvidia", "openai_compatible"]:
@@ -132,10 +159,7 @@ class LLMService:
             
             LLMService.logger.debug(f"Using {llm_config.provider} provider with model: {llm_config.model}, base_url: {base_url}")
             
-            callbacks = []
-            if settings.debug_trace:
-                callbacks.append(OpenAIHTTPLogger(enabled=True))
-                LLMService.logger.debug("OpenAI HTTP payload logging enabled")
+            callbacks = LLMService._build_callbacks()
             
             return _build_client(
                 ChatOpenAI,

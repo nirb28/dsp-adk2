@@ -56,6 +56,11 @@ class Settings(BaseSettings):
     debug_trace: bool = Field(default=False)
     ssl_verify: bool = Field(default=True)
     
+    langfuse_enabled: bool = Field(default=False)
+    langfuse_public_key: Optional[str] = Field(default=None)
+    langfuse_secret_key: Optional[str] = Field(default=None)
+    langfuse_host: Optional[str] = Field(default=None)
+    
     data_dir: str = Field(default="./data")
     agents_dir: str = Field(default="./data/agents")
     tools_dir: str = Field(default="./data/tools")
