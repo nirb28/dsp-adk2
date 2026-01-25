@@ -280,8 +280,8 @@ class LLMService:
         LLMService.logger.debug(f"Invoking LLM: {llm_config.provider}/{llm_config.model}")
         llm = LLMService.get_llm(llm_config)
         messages = [
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=user_message)
+            SystemMessage(content=system_prompt or ""),
+            HumanMessage(content=user_message or "")
         ]
 
         if settings.debug_trace:
