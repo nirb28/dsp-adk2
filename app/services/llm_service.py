@@ -204,7 +204,15 @@ class LLMService:
             llm_config = LLMService._default_config()
 
         api_key = llm_config.api_key or settings.llm_api_key
-        reserved_keys = {"model", "api_key", "base_url", "temperature", "max_tokens", "groq_api_key"}
+        reserved_keys = {
+            "model",
+            "api_key",
+            "base_url",
+            "temperature",
+            "max_tokens",
+            "groq_api_key",
+            "extra_headers",
+        }
         extra_params: dict[str, Any] = {}
         send_additional_params = (
             llm_config.send_additional_params
@@ -230,9 +238,21 @@ class LLMService:
             denylist=denylist,
             rename_map=rename_map,
         )
+        request_params.pop("extra_headers", None)
 
-        http_client = httpx.Client(verify=settings.ssl_verify)
-        http_async_client = httpx.AsyncClient(verify=settings.ssl_verify)
+        def _strip_extra_headers(request: httpx.Request) -> None:
+            for header in list(request.headers.keys()):
+                if header.lower().startswith("x-stainless-"):
+                    request.headers.pop(header, None)
+
+        http_client = httpx.Client(
+            verify=settings.ssl_verify,
+            event_hooks={"request": [_strip_extra_headers]},
+        )
+        http_async_client = httpx.AsyncClient(
+            verify=settings.ssl_verify,
+            event_hooks={"request": [_strip_extra_headers]},
+        )
 
         def _build_client(client_cls, **kwargs):
             try:
@@ -280,8 +300,8 @@ class LLMService:
         LLMService.logger.debug(f"Invoking LLM: {llm_config.provider}/{llm_config.model}")
         llm = LLMService.get_llm(llm_config)
         messages = [
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=user_message)
+            SystemMessage(content=system_prompt or ""),
+            HumanMessage(content=user_message or "")
         ]
 
         if settings.debug_trace:
