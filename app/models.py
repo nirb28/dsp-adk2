@@ -168,6 +168,7 @@ class AgentExecutionRequest(BaseModel):
     context: Dict[str, Any] = Field(default_factory=dict)
     stream: bool = Field(default=False)
     llm_override: Optional[LLMOverride] = None
+    framework_override: Optional[Literal["langgraph", "google_adk", "openai_direct"]] = None
 
 
 class AgentExecutionResponse(BaseModel):

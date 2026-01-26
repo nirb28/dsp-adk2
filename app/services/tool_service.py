@@ -204,6 +204,8 @@ class ToolService:
                 "type": param.type,
                 "description": param.description
             }
+            if param.type == "array":
+                prop["items"] = {"type": "object"}
             if param.enum:
                 prop["enum"] = param.enum
             if param.default is not None:

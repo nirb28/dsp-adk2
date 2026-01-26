@@ -20,6 +20,7 @@ class AgentService:
         user_input: str,
         context: Dict[str, Any] = None,
         llm_override: Optional[LLMOverride] = None,
+        framework_override: Optional[str] = None,
     ) -> AgentExecutionResponse:
         """Execute an agent by name with given input."""
         start_time = time.time()
@@ -59,7 +60,8 @@ class AgentService:
                         )
                     }
                 )
-            framework = framework_registry.get(agent_config.framework)
+            selected_framework = framework_override or agent_config.framework
+            framework = framework_registry.get(selected_framework)
             output, steps = await framework.execute(agent_config, user_input, context, llm_override)
 
             execution_time = time.time() - start_time

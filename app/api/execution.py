@@ -59,6 +59,7 @@ async def execute_agent(request: AgentExecutionRequest):
         request.input,
         request.context,
         request.llm_override,
+        request.framework_override,
     )
     
     if not result.success:

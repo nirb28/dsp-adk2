@@ -53,7 +53,8 @@ Content-Type: application/json
 {
   "agent_name": "simple_assistant",
   "input": "Calculate the length of the text 'Hello World' and then multiply it by 5",
-  "context": {}
+  "context": {},
+  "framework_override": "openai_direct"
 }
 ```
 
@@ -152,6 +153,38 @@ tools:
   - calculator
 max_iterations: 5
 framework: langgraph
+```
+
+### Agent Framework Options
+
+Supported `framework` values:
+
+- `langgraph` (default) - LangChain/LangGraph based agent execution
+- `google_adk` - Google ADK-based agent execution
+- `openai_direct` - Direct OpenAI SDK calls (no LangChain)
+
+#### Using `openai_direct`
+
+This framework calls the OpenAI SDK directly and still supports tool calling via the YAML tool configs.
+Set the agent `framework` to `openai_direct` and keep `llm_config.provider` as `openai` (or any OpenAI-compatible base URL).
+
+```yaml
+name: simple_assistant
+description: A helpful AI assistant
+llm_config:
+  provider: openai
+  model: gpt-4o-mini
+  api_key: ${LLM_API_KEY}
+  base_url: ${LLM_BASE_URL}
+  temperature: 0.7
+  max_tokens: 2000
+system_prompt: |
+  You are a helpful AI assistant...
+tools:
+  - text_length
+  - calculator
+max_iterations: 5
+framework: openai_direct
 ```
 
 ## Graph Configuration (LangGraph)
