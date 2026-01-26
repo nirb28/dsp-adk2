@@ -23,7 +23,7 @@ tools:
   - text_length
   - calculator
 max_iterations: 5
-framework: langgraph
+framework: openai_direct
 metadata:
   category: general
   version: "1.0"

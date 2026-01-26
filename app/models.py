@@ -71,7 +71,7 @@ class AgentConfig(BaseModel):
     system_prompt: str = Field(description="System prompt for the agent")
     tools: List[str] = Field(default_factory=list, description="List of tool names available to agent")
     max_iterations: int = Field(default=10, ge=1, description="Maximum reasoning iterations")
-    framework: Literal["langgraph", "google_adk"] = Field(default="langgraph")
+    framework: Literal["langgraph", "google_adk", "openai_direct"] = Field(default="langgraph")
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
 

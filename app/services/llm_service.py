@@ -242,7 +242,10 @@ class LLMService:
 
         def _strip_extra_headers(request: httpx.Request) -> None:
             for header in list(request.headers.keys()):
-                if header.lower().startswith("x-stainless-"):
+                header_lower = header.lower()
+                if header_lower == "x-stainless-raw-response":
+                    continue
+                if header_lower.startswith("x-stainless-"):
                     request.headers.pop(header, None)
 
         http_client = httpx.Client(
