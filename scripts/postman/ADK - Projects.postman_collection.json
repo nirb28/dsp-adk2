@@ -775,7 +775,7 @@
       "name": "vision",
       "item": [
         {
-          "name": "NVIDIA Vision",
+          "name": "OpenAI Vision",
           "event": [
             {
               "listen": "prerequest",
@@ -808,7 +808,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{NVIDIA_API_KEY}}",
+                  "value": "{{OPENAI_API_KEY}}",
                   "type": "string"
                 }
               ]
@@ -817,7 +817,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"model\": \"meta/llama-4-scout-17b-16e-instruct\",\r\n  \"messages\": [\r\n      {\r\n        \"role\": \"user\",\r\n        \"content\": \"Is there a car in this image? <img  src=\\\"{{image_base64}}\\\" />\"\r\n      }\r\n    ],\r\n  \"max_tokens\": 512,\r\n  \"temperature\": 1.00,\r\n  \"top_p\": 1.00,\r\n  \"frequency_penalty\": 0.00,\r\n  \"presence_penalty\": 0.00,\r\n  \"stream\": false\r\n}",
+              "raw": "{\r\n  \"model\": \"gpt-4o-mini\",\r\n  \"messages\": [\r\n      {\r\n        \"role\": \"user\",\r\n        \"content\": \"Is there a car in this image? <img  src=\\\"{{image_base64}}\\\" />\"\r\n      }\r\n    ],\r\n  \"max_tokens\": 512,\r\n  \"temperature\": 1.00,\r\n  \"top_p\": 1.00,\r\n  \"frequency_penalty\": 0.00,\r\n  \"presence_penalty\": 0.00,\r\n  \"stream\": false\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -825,12 +825,11 @@
               }
             },
             "url": {
-              "raw": "https://integrate.api.nvidia.com/v1/chat/completions",
+              "raw": "https://api.openai.com/v1/chat/completions",
               "protocol": "https",
               "host": [
-                "integrate",
                 "api",
-                "nvidia",
+                "openai",
                 "com"
               ],
               "path": [
@@ -844,7 +843,7 @@
           "response": []
         },
         {
-          "name": "NV - Check comparison",
+          "name": "OpenAI - Check comparison",
           "event": [
             {
               "listen": "prerequest",
@@ -875,7 +874,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{NVIDIA_API_KEY}}",
+                  "value": "{{OPENAI_API_KEY}}",
                   "type": "string"
                 }
               ]
@@ -884,7 +883,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"model\": \"meta/llama-4-scout-17b-16e-instruct\",\r\n  \"max_tokens\": 1024,\r\n  \"temperature\": 0.2,\r\n  \"top_p\": 1.00,\r\n  \"frequency_penalty\": 0.00,\r\n  \"presence_penalty\": 0.00,\r\n  \"stream\": false,\r\n  \"messages\": [\r\n        {\r\n            \"role\": \"system\",\r\n            \"content\": \"You are a fraud detection expert. Compare the two provided check images for any signs of fraud, such as altered amounts, mismatched signatures, inconsistent handwriting, date discrepancies, or other anomalies. Explain your reasoning step-by-step and conclude if fraud is likely (yes/no) with a confidence level (low/medium/high).\"\r\n        },\r\n        {\r\n            \"role\": \"user\",\r\n            \"content\": [\r\n                {\"type\": \"text\", \"text\": \"Check 1:\"},\r\n                {\r\n                    \"type\": \"image_url\",\r\n                    \"image_url\": {\r\n                        \"url\": \"https://static.pdfsimpli.com/wp-content/uploads/2018/11/printable-blank-check-template-pdf-format-e1693235915568.webp?referrer=grok.com\"                    }\r\n                },\r\n                {\"type\": \"text\", \"text\": \"Check 2:\"},\r\n                {\r\n                    \"type\": \"image_url\",\r\n                    \"image_url\": {\r\n                        \"url\": \"https://www.shutterstock.com/image-vector/blank-bank-cheque-personal-desk-260nw-1613814310.jpg?referrer=grok.com\"\r\n                    }\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}",
+              "raw": "{\r\n  \"model\": \"gpt-4o-mini\",\r\n  \"max_tokens\": 1024,\r\n  \"temperature\": 0.2,\r\n  \"top_p\": 1.00,\r\n  \"frequency_penalty\": 0.00,\r\n  \"presence_penalty\": 0.00,\r\n  \"stream\": false,\r\n  \"messages\": [\r\n        {\r\n            \"role\": \"system\",\r\n            \"content\": \"You are a fraud detection expert. Compare the two provided check images for any signs of fraud, such as altered amounts, mismatched signatures, inconsistent handwriting, date discrepancies, or other anomalies. Explain your reasoning step-by-step and conclude if fraud is likely (yes/no) with a confidence level (low/medium/high).\"\r\n        },\r\n        {\r\n            \"role\": \"user\",\r\n            \"content\": [\r\n                {\"type\": \"text\", \"text\": \"Check 1:\"},\r\n                {\r\n                    \"type\": \"image_url\",\r\n                    \"image_url\": {\r\n                        \"url\": \"https://static.pdfsimpli.com/wp-content/uploads/2018/11/printable-blank-check-template-pdf-format-e1693235915568.webp?referrer=grok.com\"                    }\r\n                },\r\n                {\"type\": \"text\", \"text\": \"Check 2:\"},\r\n                {\r\n                    \"type\": \"image_url\",\r\n                    \"image_url\": {\r\n                        \"url\": \"https://www.shutterstock.com/image-vector/blank-bank-cheque-personal-desk-260nw-1613814310.jpg?referrer=grok.com\"\r\n                    }\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -892,12 +891,11 @@
               }
             },
             "url": {
-              "raw": "https://integrate.api.nvidia.com/v1/chat/completions",
+              "raw": "https://api.openai.com/v1/chat/completions",
               "protocol": "https",
               "host": [
-                "integrate",
                 "api",
-                "nvidia",
+                "openai",
                 "com"
               ],
               "path": [
@@ -916,7 +914,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n  \"model\": \"meta/llama-4-scout-17b-16e-instruct\",\r\n  \"max_tokens\": 1024,\r\n  \"temperature\": 0.2,\r\n  \"top_p\": 1.00,\r\n  \"frequency_penalty\": 0.00,\r\n  \"presence_penalty\": 0.00,\r\n  \"stream\": false,\r\n  \"messages\": [\r\n        {\r\n            \"role\": \"system\",\r\n            \"content\": \"You are a fraud detection expert. Compare the two provided check images for any signs of fraud, such as altered amounts, mismatched signatures, inconsistent handwriting, date discrepancies, or other anomalies. Explain your reasoning step-by-step and conclude if fraud is likely (yes/no) with a confidence level (low/medium/high).\"\r\n        },\r\n        {\r\n            \"role\": \"user\",\r\n            \"content\": [\r\n                {\"type\": \"text\", \"text\": \"Check 1:\"},\r\n                {\r\n                    \"type\": \"image_url\",\r\n                    \"image_url\": {\r\n                        \"url\": \"{{img_check1}}\"                    }\r\n                },\r\n                {\"type\": \"text\", \"text\": \"Check 2:\"},\r\n                {\r\n                    \"type\": \"image_url\",\r\n                    \"image_url\": {\r\n                        \"url\": \"{{img_check2}}\"\r\n                    }\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}",
+                  "raw": "{\r\n  \"model\": \"gpt-4o-mini\",\r\n  \"max_tokens\": 1024,\r\n  \"temperature\": 0.2,\r\n  \"top_p\": 1.00,\r\n  \"frequency_penalty\": 0.00,\r\n  \"presence_penalty\": 0.00,\r\n  \"stream\": false,\r\n  \"messages\": [\r\n        {\r\n            \"role\": \"system\",\r\n            \"content\": \"You are a fraud detection expert. Compare the two provided check images for any signs of fraud, such as altered amounts, mismatched signatures, inconsistent handwriting, date discrepancies, or other anomalies. Explain your reasoning step-by-step and conclude if fraud is likely (yes/no) with a confidence level (low/medium/high).\"\r\n        },\r\n        {\r\n            \"role\": \"user\",\r\n            \"content\": [\r\n                {\"type\": \"text\", \"text\": \"Check 1:\"},\r\n                {\r\n                    \"type\": \"image_url\",\r\n                    \"image_url\": {\r\n                        \"url\": \"{{img_check1}}\"                    }\r\n                },\r\n                {\"type\": \"text\", \"text\": \"Check 2:\"},\r\n                {\r\n                    \"type\": \"image_url\",\r\n                    \"image_url\": {\r\n                        \"url\": \"{{img_check2}}\"\r\n                    }\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -924,12 +922,11 @@
                   }
                 },
                 "url": {
-                  "raw": "https://integrate.api.nvidia.com/v1/chat/completions",
+                  "raw": "https://api.openai.com/v1/chat/completions",
                   "protocol": "https",
                   "host": [
-                    "integrate",
                     "api",
-                    "nvidia",
+                    "openai",
                     "com"
                   ],
                   "path": [
@@ -947,7 +944,7 @@
           ]
         },
         {
-          "name": "NV - Check Analysis",
+          "name": "OpenAI - Check Analysis",
           "event": [
             {
               "listen": "prerequest",
@@ -982,7 +979,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "{{NVIDIA_API_KEY}}",
+                  "value": "{{OPENAI_API_KEY}}",
                   "type": "string"
                 }
               ]
@@ -991,7 +988,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"model\": \"\",\r\n  \"messages\": [\r\n    {\r\n      \"role\": \"system\",\r\n      \"content\": \"You are a forensic document examiner and fraud detection expert specializing in bank checks. Analyze the provided check image in detail. Extract and describe all visible elements step-by-step, including:\\n\\n1. Issuing company/bank details (name, address, etc.).\\n2. Check number, date, and any validity clauses.\\n3. Payee, numeric and written amounts.\\n4. Signature and any handwriting analysis.\\n5. MICR line and routing/account info.\\n6. Security features (background patterns, warnings, watermarks).\\n\\nThen, assess for potential fraud indicators:\\n- Consistency between amounts.\\n- Anomalies in formatting, dates, or payee.\\n- Signature authenticity (based on visuals).\\n- Bank/company verification (note if outdated or suspicious).\\n- Visible alterations (erasures, ink mismatches, photocopying signs).\\n\\nConclude with overall fraud likelihood (yes/no) and confidence level (low/medium/high), plus reasoning. If it resembles known scam templates, mention that. Structure your response clearly with headings like 'Key Details' and 'Fraud Assessment'.\"\r\n    },\r\n    {\r\n      \"role\": \"user\",\r\n      \"content\": [\r\n        {\r\n          \"type\": \"text\",\r\n          \"text\": \"Analyze this check image:\"\r\n        },\r\n        {\r\n          \"type\": \"image_url\",\r\n          \"image_url\": {\r\n            \"url\": \"https://raw.githubusercontent.com/nirb28/dsp-adk2/refs/heads/main/examples/check_fraud/images/sample_fraud_check.jpg\"\r\n          }\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"temperature\": 0.2,\r\n  \"top_p\": 0.7,\r\n  \"max_tokens\": 1024,\r\n  \"stream\": false\r\n}",
+              "raw": "{\r\n  \"model\": \"gpt-4o\",\r\n  \"messages\": [\r\n    {\r\n      \"role\": \"system\",\r\n      \"content\": \"You are a forensic document examiner and fraud detection expert specializing in bank checks. Analyze the provided check image in detail. Extract and describe all visible elements step-by-step, including:\\n\\n1. Issuing company/bank details (name, address, etc.).\\n2. Check number, date, and any validity clauses.\\n3. Payee, numeric and written amounts.\\n4. Signature and any handwriting analysis.\\n5. MICR line and routing/account info.\\n6. Security features (background patterns, warnings, watermarks).\\n\\nThen, assess for potential fraud indicators:\\n- Consistency between amounts.\\n- Anomalies in formatting, dates, or payee.\\n- Signature authenticity (based on visuals).\\n- Bank/company verification (note if outdated or suspicious).\\n- Visible alterations (erasures, ink mismatches, photocopying signs).\\n\\nConclude with overall fraud likelihood (yes/no) and confidence level (low/medium/high), plus reasoning. If it resembles known scam templates, mention that. Structure your response clearly with headings like 'Key Details' and 'Fraud Assessment'.\"\r\n    },\r\n    {\r\n      \"role\": \"user\",\r\n      \"content\": [\r\n        {\r\n          \"type\": \"text\",\r\n          \"text\": \"Analyze this check image:\"\r\n        },\r\n        {\r\n          \"type\": \"image_url\",\r\n          \"image_url\": {\r\n            \"url\": \"https://raw.githubusercontent.com/nirb28/dsp-adk2/refs/heads/main/examples/check_fraud/images/sample_fraud_check.jpg\"\r\n          }\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"temperature\": 0.2,\r\n  \"top_p\": 0.7,\r\n  \"max_tokens\": 1024,\r\n  \"stream\": false\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -999,12 +996,11 @@
               }
             },
             "url": {
-              "raw": "https://integrate.api.nvidia.com/v1/chat/completions",
+              "raw": "https://api.openai.com/v1/chat/completions",
               "protocol": "https",
               "host": [
-                "integrate",
                 "api",
-                "nvidia",
+                "openai",
                 "com"
               ],
               "path": [
@@ -1023,7 +1019,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n  \"model\": \"meta/llama-4-scout-17b-16e-instruct\",\r\n  \"max_tokens\": 1024,\r\n  \"temperature\": 0.2,\r\n  \"top_p\": 1.00,\r\n  \"frequency_penalty\": 0.00,\r\n  \"presence_penalty\": 0.00,\r\n  \"stream\": false,\r\n  \"messages\": [\r\n        {\r\n            \"role\": \"system\",\r\n            \"content\": \"You are a fraud detection expert. Compare the two provided check images for any signs of fraud, such as altered amounts, mismatched signatures, inconsistent handwriting, date discrepancies, or other anomalies. Explain your reasoning step-by-step and conclude if fraud is likely (yes/no) with a confidence level (low/medium/high).\"\r\n        },\r\n        {\r\n            \"role\": \"user\",\r\n            \"content\": [\r\n                {\"type\": \"text\", \"text\": \"Check 1:\"},\r\n                {\r\n                    \"type\": \"image_url\",\r\n                    \"image_url\": {\r\n                        \"url\": \"{{img_check1}}\"                    }\r\n                },\r\n                {\"type\": \"text\", \"text\": \"Check 2:\"},\r\n                {\r\n                    \"type\": \"image_url\",\r\n                    \"image_url\": {\r\n                        \"url\": \"{{img_check2}}\"\r\n                    }\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}",
+                  "raw": "{\r\n  \"model\": \"gpt-4o\",\r\n  \"max_tokens\": 1024,\r\n  \"temperature\": 0.2,\r\n  \"top_p\": 1.00,\r\n  \"frequency_penalty\": 0.00,\r\n  \"presence_penalty\": 0.00,\r\n  \"stream\": false,\r\n  \"messages\": [\r\n        {\r\n            \"role\": \"system\",\r\n            \"content\": \"You are a fraud detection expert. Compare the two provided check images for any signs of fraud, such as altered amounts, mismatched signatures, inconsistent handwriting, date discrepancies, or other anomalies. Explain your reasoning step-by-step and conclude if fraud is likely (yes/no) with a confidence level (low/medium/high).\"\r\n        },\r\n        {\r\n            \"role\": \"user\",\r\n            \"content\": [\r\n                {\"type\": \"text\", \"text\": \"Check 1:\"},\r\n                {\r\n                    \"type\": \"image_url\",\r\n                    \"image_url\": {\r\n                        \"url\": \"{{img_check1}}\"                    }\r\n                },\r\n                {\"type\": \"text\", \"text\": \"Check 2:\"},\r\n                {\r\n                    \"type\": \"image_url\",\r\n                    \"image_url\": {\r\n                        \"url\": \"{{img_check2}}\"\r\n                    }\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1031,12 +1027,11 @@
                   }
                 },
                 "url": {
-                  "raw": "https://integrate.api.nvidia.com/v1/chat/completions",
+                  "raw": "https://api.openai.com/v1/chat/completions",
                   "protocol": "https",
                   "host": [
-                    "integrate",
                     "api",
-                    "nvidia",
+                    "openai",
                     "com"
                   ],
                   "path": [

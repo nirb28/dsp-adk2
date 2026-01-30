@@ -262,7 +262,7 @@ class GraphService:
 
             tools_cache: Dict[str, List[Any]] = {}
 
-            def build_tools(tool_names: List[str]) -> List[Any]:
+            def build_tools(tool_names: List[str], llm_config: Any) -> List[Any]:
                 tool_funcs: List[Any] = []
                 for tool_name in tool_names:
                     if tool_name in tools_cache:
@@ -274,7 +274,12 @@ class GraphService:
                         continue
 
                     async def tool_func(tool_name_arg=tool_name, **kwargs):
-                        result = await ToolService.execute_tool(tool_name_arg, kwargs, llm_override)
+                        result = await ToolService.execute_tool(
+                            tool_name_arg,
+                            kwargs,
+                            llm_override,
+                            llm_config,
+                        )
                         if result.success:
                             return result.result
                         return {"error": result.error}
@@ -297,7 +302,7 @@ class GraphService:
                 if google_api_key:
                     os.environ["GOOGLE_API_KEY"] = google_api_key
 
-                tools = build_tools(agent_config.tools)
+                tools = build_tools(agent_config.tools, llm_config)
 
                 sub_agents.append(
                     LlmAgent(

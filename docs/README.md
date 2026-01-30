@@ -166,7 +166,7 @@ Supported `framework` values:
 #### Using `openai_direct`
 
 This framework calls the OpenAI SDK directly and still supports tool calling via the YAML tool configs.
-Set the agent `framework` to `openai_direct` and keep `llm_config.provider` as `openai` (or any OpenAI-compatible base URL).
+Set the agent `framework` to `openai_direct` and keep `llm_config.provider` as `openai`.
 
 ```yaml
 name: simple_assistant
@@ -275,9 +275,7 @@ The framework includes several built-in tools:
 Supported LLM providers:
 
 - **OpenAI**: GPT-4, GPT-3.5-turbo, etc.
-- **Groq**: Llama, Mixtral models
-- **NVIDIA**: NVIDIA AI Endpoints
-- **OpenAI-Compatible**: Any OpenAI-compatible API
+- **Google ADK**: Gemini models via the Google ADK runtime
 
 Configure in `.env`:
 
@@ -286,16 +284,6 @@ Configure in `.env`:
 LLM_PROVIDER=openai
 LLM_MODEL=gpt-4
 LLM_API_KEY=sk-...
-
-# Groq
-LLM_PROVIDER=groq
-LLM_MODEL=llama3-70b-8192
-LLM_API_KEY=gsk_...
-
-# NVIDIA
-LLM_PROVIDER=nvidia
-LLM_MODEL=meta/llama-3.3-70b-instruct
-LLM_API_KEY=nvapi-...
 ```
 
 ## API Endpoints

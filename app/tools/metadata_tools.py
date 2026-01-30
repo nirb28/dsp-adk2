@@ -54,17 +54,19 @@ def column_metadata(
     context: Optional[str] = None,
     dialect: str = "sqlite",
     llm_override: Optional[LLMOverride] = None,
+    llm_config: Optional[LLMConfig] = None,
     **_: Any,
 ) -> Dict[str, Any]:
     """Generate column metadata for all tables in a schema using LLM."""
-    llm_config = LLMConfig(
-        provider=settings.llm_provider,
-        model=settings.llm_model,
-        api_key=settings.llm_api_key,
-        base_url=settings.llm_base_url,
-        temperature=settings.llm_temperature,
-        max_tokens=settings.llm_max_tokens,
-    )
+    if llm_config is None:
+        llm_config = LLMConfig(
+            provider=settings.llm_provider,
+            model=settings.llm_model,
+            api_key=settings.llm_api_key,
+            base_url=settings.llm_base_url,
+            temperature=settings.llm_temperature,
+            max_tokens=settings.llm_max_tokens,
+        )
     llm_config = LLMService.resolve_llm_config(llm_config, llm_override)
 
     system_prompt = (

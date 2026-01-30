@@ -1,5 +1,5 @@
 name: image_analysis
-description: Analyze an image using NVIDIA vision models.
+description: Analyze an image using OpenAI vision models.
 type: function
 module_path: app.tools.image_tools
 function_name: analyze_image
@@ -10,9 +10,9 @@ parameters:
     required: true
   - name: model
     type: string
-    description: Vision-capable model name to use for analysis.
-    required: true
-    default: meta/llama-3.2-90b-vision-instruct
+    description: Vision-capable OpenAI model name to use for analysis.
+    required: false
+    default: gpt-4o-mini
   - name: system_prompt
     type: string
     description: Optional system prompt override.

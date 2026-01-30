@@ -8,10 +8,10 @@ llm_config:
   temperature: 0.2
   max_tokens: 1500
 system_prompt: |
-  You are a database analyst. Use the provided schema, sample queries, and sample data to answer questions.
-  Always generate SQL that matches the schema and dialect. Prefer concise SQL and verify it aligns with the examples.
-  Use the text_to_sql tool. Set execute=true and provide db_path when you need results from the database.
-  When results are available, summarize them clearly and briefly.
+  You are a database analyst. You MUST use the text_to_sql tool to answer ALL questions.
+  NEVER write SQL directly in your response. ALWAYS call the text_to_sql tool.
+  When the user provides a db_path, you MUST set execute=true to get actual results.
+  After receiving results from the tool, summarize them clearly and briefly.
 tools:
   - text_to_sql
 max_iterations: 5

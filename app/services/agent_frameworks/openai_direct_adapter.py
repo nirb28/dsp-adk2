@@ -37,6 +37,26 @@ class OpenAIDirectAdapter(AgentFramework):
 
         client = openai.OpenAI(api_key=api_key, base_url=base_url)
 
+        reserved_keys = {
+            "model",
+            "api_key",
+            "base_url",
+            "temperature",
+            "max_tokens",
+            "extra_headers",
+        }
+        extra_params = {
+            key: value
+            for key, value in (llm_config.additional_params or {}).items()
+            if key not in reserved_keys
+        }
+        request_params = {
+            "temperature": llm_config.temperature,
+            "max_tokens": llm_config.max_tokens,
+            **extra_params,
+        }
+        request_params.pop("extra_headers", None)
+
         tool_schemas: List[Dict[str, Any]] = []
         tool_lookup: Dict[str, str] = {}
         for tool_name in agent_config.tools:
@@ -74,6 +94,7 @@ class OpenAIDirectAdapter(AgentFramework):
                 model=llm_config.model,
                 messages=messages,
                 tools=tool_schemas or None,
+                **request_params,
             )
 
             message = response.choices[0].message
@@ -121,7 +142,7 @@ class OpenAIDirectAdapter(AgentFramework):
                 except json.JSONDecodeError:
                     parsed_args = {"_raw": raw_args}
 
-                tool_result = await ToolService.execute_tool(tool_name, parsed_args, llm_override)
+                tool_result = await ToolService.execute_tool(tool_name, parsed_args, llm_override, llm_config)
                 if tool_result.success:
                     tool_content: Any = tool_result.result
                 else:

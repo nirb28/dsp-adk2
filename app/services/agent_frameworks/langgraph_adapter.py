@@ -48,7 +48,7 @@ class LangGraphAdapter(AgentFramework):
 
             def create_tool_func(tn: str, description: str):
                 async def tool_func(**kwargs):
-                    result = await ToolService.execute_tool(tn, kwargs, llm_override)
+                    result = await ToolService.execute_tool(tn, kwargs, llm_override, llm_config)
                     if result.success:
                         return result.result
                     return f"Error: {result.error}"
@@ -174,7 +174,7 @@ class LangGraphAdapter(AgentFramework):
                     tool_name = tool_call["name"]
                     tool_args = tool_call.get("args", {})
 
-                    result = await ToolService.execute_tool(tool_name, tool_args, llm_override)
+                    result = await ToolService.execute_tool(tool_name, tool_args, llm_override, llm_config)
 
                     steps.append(
                         {

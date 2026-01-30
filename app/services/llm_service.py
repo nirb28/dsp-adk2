@@ -6,7 +6,6 @@ from typing import Optional, Any, Iterable
 
 import httpx
 from langchain_openai import ChatOpenAI
-from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, SystemMessage
 from app.models import LLMConfig, LLMOverride
 from app.config import settings
@@ -41,70 +40,6 @@ class LLMService:
             else:
                 expanded[key] = value
         return expanded
-
-    @staticmethod
-    def _parse_csv(value: Optional[str]) -> set[str]:
-        if not value:
-            return set()
-        return {item.strip() for item in value.split(",") if item.strip()}
-
-    @staticmethod
-    def _parse_rename_map(value: Optional[str]) -> dict[str, str]:
-        if not value:
-            return {}
-        try:
-            parsed = json.loads(value)
-        except json.JSONDecodeError:
-            LLMService.logger.warning("Invalid llm_request_param_rename JSON; ignoring")
-            return {}
-        if not isinstance(parsed, dict):
-            LLMService.logger.warning("llm_request_param_rename must be a JSON object; ignoring")
-            return {}
-        return {str(key): str(val) for key, val in parsed.items()}
-
-    @staticmethod
-    def _apply_request_param_policy(
-        params: dict[str, Any],
-        allowlist: Optional[str] = None,
-        denylist: Optional[str] = None,
-        rename_map: Optional[str] = None,
-    ) -> dict[str, Any]:
-        rename_map = LLMService._parse_rename_map(rename_map)
-        if rename_map:
-            applied_renames = {
-                key: rename_map[key]
-                for key in params.keys()
-                if key in rename_map and rename_map[key] != key
-            }
-            if applied_renames:
-                LLMService.logger.debug("LLM request param renames applied: %s", applied_renames)
-        renamed: dict[str, Any] = {}
-        for key, value in params.items():
-            renamed_key = rename_map.get(key, key)
-            renamed[renamed_key] = value
-
-        allowlist = LLMService._parse_csv(allowlist)
-        denylist = LLMService._parse_csv(denylist)
-
-        if allowlist:
-            before_allow = set(renamed.keys())
-            renamed = {key: val for key, val in renamed.items() if key in allowlist}
-            denied_by_allowlist = sorted(before_allow - set(renamed.keys()))
-            LLMService.logger.debug(
-                "LLM request param allowlist applied. Allowed: %s Denied: %s",
-                sorted(allowlist),
-                denied_by_allowlist,
-            )
-        if denylist:
-            before_deny = set(renamed.keys())
-            renamed = {key: val for key, val in renamed.items() if key not in denylist}
-            denied_by_denylist = sorted(before_deny - set(renamed.keys()))
-            LLMService.logger.debug(
-                "LLM request param denylist applied. Denied: %s",
-                denied_by_denylist,
-            )
-
-        return renamed
 
     @staticmethod
     def _default_config() -> LLMConfig:
@@ -165,26 +100,6 @@ class LLMService:
                 "base_url": expanded_base_url if override.base_url is not None else config.base_url,
                 "temperature": override.temperature if override.temperature is not None else config.temperature,
                 "max_tokens": override.max_tokens if override.max_tokens is not None else config.max_tokens,
-                "send_additional_params": (
-                    override.send_additional_params
-                    if override.send_additional_params is not None
-                    else config.send_additional_params
-                ),
-                "request_param_allowlist": (
-                    override.request_param_allowlist
-                    if override.request_param_allowlist is not None
-                    else config.request_param_allowlist
-                ),
-                "request_param_denylist": (
-                    override.request_param_denylist
-                    if override.request_param_denylist is not None
-                    else config.request_param_denylist
-                ),
-                "request_param_rename": (
-                    override.request_param_rename
-                    if override.request_param_rename is not None
-                    else config.request_param_rename
-                ),
             }
         )
 
@@ -210,34 +125,18 @@ class LLMService:
             "base_url",
             "temperature",
             "max_tokens",
-            "groq_api_key",
             "extra_headers",
         }
-        extra_params: dict[str, Any] = {}
-        send_additional_params = (
-            llm_config.send_additional_params
-            if llm_config.send_additional_params is not None
-            else settings.llm_send_additional_params
-        )
-        if send_additional_params:
-            extra_params = {
-                key: value
-                for key, value in (llm_config.additional_params or {}).items()
-                if key not in reserved_keys
-            }
-        allowlist = llm_config.request_param_allowlist or settings.llm_request_param_allowlist
-        denylist = llm_config.request_param_denylist or settings.llm_request_param_denylist
-        rename_map = llm_config.request_param_rename or settings.llm_request_param_rename
-        request_params = LLMService._apply_request_param_policy(
-            {
-                "temperature": llm_config.temperature,
-                "max_tokens": llm_config.max_tokens,
-                **extra_params,
-            },
-            allowlist=allowlist,
-            denylist=denylist,
-            rename_map=rename_map,
-        )
+        extra_params = {
+            key: value
+            for key, value in (llm_config.additional_params or {}).items()
+            if key not in reserved_keys
+        }
+        request_params = {
+            "temperature": llm_config.temperature,
+            "max_tokens": llm_config.max_tokens,
+            **extra_params,
+        }
         request_params.pop("extra_headers", None)
 
         def _strip_extra_headers(request: httpx.Request) -> None:
@@ -267,35 +166,27 @@ class LLMService:
             except TypeError:
                 return client_cls(**kwargs)
 
-        if llm_config.provider.lower() == "groq":
-            LLMService.logger.debug(f"Using Groq provider with model: {llm_config.model}")
-            callbacks = LLMService._build_callbacks()
-            return _build_client(
-                ChatGroq,
-                model=llm_config.model,
-                groq_api_key=api_key,
-                callbacks=callbacks if callbacks else None,
-                **request_params,
-            )
-        elif llm_config.provider.lower() in ["openai", "nvidia", "openai_compatible"]:
-            base_url = llm_config.base_url or settings.llm_base_url
-            if llm_config.provider.lower() == "nvidia":
-                base_url = base_url or "https://integrate.api.nvidia.com/v1"
-            
-            LLMService.logger.debug(f"Using {llm_config.provider} provider with model: {llm_config.model}, base_url: {base_url}")
-            
-            callbacks = LLMService._build_callbacks()
-            
-            return _build_client(
-                ChatOpenAI,
-                model=llm_config.model,
-                api_key=api_key,
-                base_url=base_url,
-                callbacks=callbacks if callbacks else None,
-                **request_params,
-            )
-        else:
+        if llm_config.provider.lower() != "openai":
             raise ValueError(f"Unsupported LLM provider: {llm_config.provider}")
+
+        base_url = llm_config.base_url or settings.llm_base_url
+
+        LLMService.logger.debug(
+            "Using OpenAI provider with model: %s, base_url: %s",
+            llm_config.model,
+            base_url,
+        )
+
+        callbacks = LLMService._build_callbacks()
+
+        return _build_client(
+            ChatOpenAI,
+            model=llm_config.model,
+            api_key=api_key,
+            base_url=base_url,
+            callbacks=callbacks if callbacks else None,
+            **request_params,
+        )
     
     @staticmethod
     def invoke(llm_config: LLMConfig, system_prompt: str, user_message: str) -> str:

@@ -46,7 +46,7 @@ class GoogleADKAdapter(AgentFramework):
                 continue
 
             async def tool_func(tool_name_arg=tool_name, **kwargs):
-                result = await ToolService.execute_tool(tool_name_arg, kwargs, llm_override)
+                result = await ToolService.execute_tool(tool_name_arg, kwargs, llm_override, llm_config)
                 if result.success:
                     return result.result
                 return {"error": result.error}

@@ -4,7 +4,7 @@ import httpx
 import json
 import logging
 from typing import Dict, Any, Optional
-from app.models import ToolConfig, ToolType, ToolExecutionResponse, LLMOverride
+from app.models import ToolConfig, ToolType, ToolExecutionResponse, LLMOverride, LLMConfig
 from app.services.yaml_service import YAMLService
 from app.config import settings
 
@@ -18,6 +18,7 @@ class ToolService:
         tool_name: str,
         parameters: Dict[str, Any],
         llm_override: Optional[LLMOverride] = None,
+        llm_config: Optional[LLMConfig] = None,
     ) -> ToolExecutionResponse:
         """Execute a tool by name with given parameters."""
         start_time = time.time()
@@ -49,11 +50,21 @@ class ToolService:
         try:
             ToolService.logger.debug(f"Tool type: {tool_config.type}")
             if tool_config.type == ToolType.FUNCTION:
-                result = await ToolService._execute_function_tool(tool_config, normalized_parameters, llm_override)
+                result = await ToolService._execute_function_tool(
+                    tool_config,
+                    normalized_parameters,
+                    llm_override,
+                    llm_config,
+                )
             elif tool_config.type == ToolType.API:
                 result = await ToolService._execute_api_tool(tool_config, normalized_parameters)
             elif tool_config.type == ToolType.PYTHON:
-                result = await ToolService._execute_python_tool(tool_config, normalized_parameters, llm_override)
+                result = await ToolService._execute_python_tool(
+                    tool_config,
+                    normalized_parameters,
+                    llm_override,
+                    llm_config,
+                )
             else:
                 raise ValueError(f"Unsupported tool type: {tool_config.type}")
             
@@ -100,6 +111,7 @@ class ToolService:
         tool_config: ToolConfig,
         parameters: Dict[str, Any],
         llm_override: Optional[LLMOverride] = None,
+        llm_config: Optional[LLMConfig] = None,
     ) -> Any:
         """Execute a function-based tool."""
         if not tool_config.module_path or not tool_config.function_name:
@@ -110,13 +122,16 @@ class ToolService:
         
         import inspect
         enriched_params = dict(parameters)
+        signature = inspect.signature(func)
+        accepts_kwargs = any(
+            param.kind == inspect.Parameter.VAR_KEYWORD for param in signature.parameters.values()
+        )
         if llm_override is not None and "llm_override" not in enriched_params:
-            signature = inspect.signature(func)
-            accepts_kwargs = any(
-                param.kind == inspect.Parameter.VAR_KEYWORD for param in signature.parameters.values()
-            )
             if "llm_override" in signature.parameters or accepts_kwargs:
                 enriched_params["llm_override"] = llm_override
+        if llm_config is not None and "llm_config" not in enriched_params:
+            if "llm_config" in signature.parameters or accepts_kwargs:
+                enriched_params["llm_config"] = llm_config
 
         if inspect.iscoroutinefunction(func):
             return await func(**enriched_params)
@@ -176,6 +191,7 @@ class ToolService:
         tool_config: ToolConfig,
         parameters: Dict[str, Any],
         llm_override: Optional[LLMOverride] = None,
+        llm_config: Optional[LLMConfig] = None,
     ) -> Any:
         """Execute a Python code-based tool."""
         if not tool_config.python_code:
@@ -184,8 +200,14 @@ class ToolService:
         enriched_params = dict(parameters)
         if llm_override is not None and "llm_override" not in enriched_params:
             enriched_params["llm_override"] = llm_override
+        if llm_config is not None and "llm_config" not in enriched_params:
+            enriched_params["llm_config"] = llm_config
 
-        local_vars = {"parameters": enriched_params, "llm_override": llm_override}
+        local_vars = {
+            "parameters": enriched_params,
+            "llm_override": llm_override,
+            "llm_config": llm_config,
+        }
         exec(tool_config.python_code, {}, local_vars)
         
         if "result" in local_vars:
