@@ -374,6 +374,21 @@ curl -X POST http://localhost:8200/execute/tool \
   -H "Content-Type: application/json" \
   -d '{"tool_name": "calculator", "parameters": {"expression": "10 * 5"}}'
 
+# Splunk tool execution (token auth)
+curl -X POST http://localhost:8200/execute/tool \
+  -H "Content-Type: application/json" \
+  -d '{"tool_name": "splunk_search", "parameters": {"query": "error", "indexes": ["main"], "auth_method": "token", "token": "${SPLUNK_TOKEN}"}}'
+
+# Splunk tool execution (session key auth)
+curl -X POST http://localhost:8200/execute/tool \
+  -H "Content-Type: application/json" \
+  -d '{"tool_name": "splunk_search", "parameters": {"query": "error", "indexes": ["main"], "auth_method": "session_key", "session_key": "${SPLUNK_SESSION_KEY}"}}'
+
+# Splunk tool execution (basic auth)
+curl -X POST http://localhost:8200/execute/tool \
+  -H "Content-Type: application/json" \
+  -d '{"tool_name": "splunk_search", "parameters": {"query": "error", "indexes": ["main"], "auth_method": "basic", "username": "${SPLUNK_USERNAME}", "password": "${SPLUNK_PASSWORD}"}}'
+
 # Test agent execution
 curl -X POST http://localhost:8200/execute/agent \
   -H "Content-Type: application/json" \

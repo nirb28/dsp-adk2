@@ -41,6 +41,23 @@ parameters:
     type: string
     description: Splunk auth token (defaults to SPLUNK_TOKEN).
     required: false
+  - name: session_key
+    type: string
+    description: Splunk session key (defaults to SPLUNK_SESSION_KEY).
+    required: false
+  - name: username
+    type: string
+    description: Splunk username for basic auth (defaults to SPLUNK_USERNAME).
+    required: false
+  - name: password
+    type: string
+    description: Splunk password for basic auth (defaults to SPLUNK_PASSWORD).
+    required: false
+  - name: auth_method
+    type: string
+    description: Auth method (auto, token, session_key, basic).
+    required: false
+    default: auto
   - name: verify_ssl
     type: boolean
     description: Verify TLS certificates.

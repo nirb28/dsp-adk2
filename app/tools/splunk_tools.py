@@ -36,13 +36,25 @@ async def splunk_search(
     output_mode: str = "json",
     base_url: Optional[str] = None,
     token: Optional[str] = None,
+    session_key: Optional[str] = None,
+    username: Optional[str] = None,
+    password: Optional[str] = None,
+    auth_method: str = "auto",
     verify_ssl: Optional[bool] = None,
 ) -> Dict[str, Any]:
     """Query Splunk using the search jobs export endpoint."""
     resolved_base_url = base_url or os.getenv("SPLUNK_BASE_URL", "http://localhost:8089")
     resolved_token = token or os.getenv("SPLUNK_TOKEN")
-    if not resolved_token:
-        raise ValueError("Splunk token is required. Provide token or set SPLUNK_TOKEN.")
+    resolved_session_key = session_key or os.getenv("SPLUNK_SESSION_KEY")
+    resolved_username = username or os.getenv("SPLUNK_USERNAME")
+    resolved_password = password or os.getenv("SPLUNK_PASSWORD")
+
+    auth_method_normalized = auth_method.lower().strip()
+    supported_methods = {"auto", "token", "session_key", "basic"}
+    if auth_method_normalized not in supported_methods:
+        raise ValueError(
+            "Invalid auth_method. Use one of: auto, token, session_key, basic."
+        )
 
     search_query = _build_search_query(query=query, indexes=indexes, search=search)
 
@@ -58,12 +70,35 @@ async def splunk_search(
     if max_count is not None:
         payload["max_count"] = max_count
 
-    headers = {
-        "Authorization": f"Splunk {resolved_token}",
-    }
-
     resolved_verify = settings.ssl_verify if verify_ssl is None else verify_ssl
-    async with httpx.AsyncClient(verify=resolved_verify) as client:
+    headers: Dict[str, str] = {}
+    client_kwargs: Dict[str, Any] = {"verify": resolved_verify}
+
+    if auth_method_normalized == "token":
+        if not resolved_token:
+            raise ValueError("Splunk token is required for token auth.")
+        headers["Authorization"] = f"Splunk {resolved_token}"
+    elif auth_method_normalized == "session_key":
+        if not resolved_session_key:
+            raise ValueError("Splunk session key is required for session_key auth.")
+        headers["Authorization"] = f"Splunk {resolved_session_key}"
+    elif auth_method_normalized == "basic":
+        if not (resolved_username and resolved_password):
+            raise ValueError("Splunk username and password are required for basic auth.")
+        client_kwargs["auth"] = (resolved_username, resolved_password)
+    else:
+        if resolved_session_key:
+            headers["Authorization"] = f"Splunk {resolved_session_key}"
+        elif resolved_token:
+            headers["Authorization"] = f"Splunk {resolved_token}"
+        elif resolved_username and resolved_password:
+            client_kwargs["auth"] = (resolved_username, resolved_password)
+        else:
+            raise ValueError(
+                "Provide SPLUNK_TOKEN, SPLUNK_SESSION_KEY, or SPLUNK_USERNAME/SPLUNK_PASSWORD."
+            )
+
+    async with httpx.AsyncClient(headers=headers or None, **client_kwargs) as client:
         response = await client.post(
             f"{resolved_base_url}/services/search/jobs/export",
             data=payload,
