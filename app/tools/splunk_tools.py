@@ -40,6 +40,7 @@ async def splunk_search(
     username: Optional[str] = None,
     password: Optional[str] = None,
     auth_method: str = "auto",
+    use_sid_flow: bool = False,
     verify_ssl: Optional[bool] = None,
 ) -> Dict[str, Any]:
     """Query Splunk using the search jobs export endpoint."""
@@ -99,28 +100,67 @@ async def splunk_search(
             )
 
     async with httpx.AsyncClient(headers=headers or None, **client_kwargs) as client:
-        response = await client.post(
-            f"{resolved_base_url}/services/search/jobs/export",
-            data=payload,
-            headers=headers,
-            timeout=120.0,
-        )
-        response.raise_for_status()
+        if use_sid_flow:
+            job_payload = dict(payload)
+            job_payload["output_mode"] = "json"
+            job_response = await client.post(
+                f"{resolved_base_url}/services/search/jobs",
+                data=job_payload,
+                headers=headers,
+                timeout=120.0,
+            )
+            job_response.raise_for_status()
+
+            job_data = job_response.json()
+            sid = job_data.get("sid")
+            if not sid:
+                raise ValueError("Splunk job did not return a SID.")
+
+            results_params: Dict[str, Any] = {"output_mode": output_mode}
+            if max_count is not None:
+                results_params["count"] = max_count
+
+            response = await client.get(
+                f"{resolved_base_url}/services/search/jobs/{sid}/results",
+                params=results_params,
+                headers=headers,
+                timeout=120.0,
+            )
+            response.raise_for_status()
+        else:
+            response = await client.post(
+                f"{resolved_base_url}/services/search/jobs/export",
+                data=payload,
+                headers=headers,
+                timeout=120.0,
+            )
+            response.raise_for_status()
 
     raw_text = response.text
     events: List[Dict[str, Any]] = []
-    for line in raw_text.splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            events.append(json.loads(line))
-        except json.JSONDecodeError:
-            continue
+    if response.headers.get("content-type", "").startswith("application/json"):
+        data = response.json()
+        if isinstance(data, dict) and "results" in data:
+            events = data.get("results", [])
+        elif isinstance(data, list):
+            events = data
+        raw_text = json.dumps(data)
+    else:
+        for line in raw_text.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                events.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
 
-    return {
+    result = {
         "search": search_query,
         "event_count": len(events),
         "events": events,
         "raw": raw_text,
     }
+    if use_sid_flow:
+        result["sid"] = sid
+    return result

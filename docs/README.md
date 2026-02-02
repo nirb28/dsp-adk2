@@ -389,6 +389,11 @@ curl -X POST http://localhost:8200/execute/tool \
   -H "Content-Type: application/json" \
   -d '{"tool_name": "splunk_search", "parameters": {"query": "error", "indexes": ["main"], "auth_method": "basic", "username": "${SPLUNK_USERNAME}", "password": "${SPLUNK_PASSWORD}"}}'
 
+# Splunk tool execution (SID flow with session key auth)
+curl -X POST http://localhost:8200/execute/tool \
+  -H "Content-Type: application/json" \
+  -d '{"tool_name": "splunk_search", "parameters": {"query": "error", "indexes": ["main"], "auth_method": "session_key", "session_key": "${SPLUNK_SESSION_KEY}", "use_sid_flow": true}}'
+
 # Test agent execution
 curl -X POST http://localhost:8200/execute/agent \
   -H "Content-Type: application/json" \

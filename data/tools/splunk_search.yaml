@@ -58,6 +58,11 @@ parameters:
     description: Auth method (auto, token, session_key, basic).
     required: false
     default: auto
+  - name: use_sid_flow
+    type: boolean
+    description: Use SID-based flow (create job, then fetch results).
+    required: false
+    default: false
   - name: verify_ssl
     type: boolean
     description: Verify TLS certificates.
