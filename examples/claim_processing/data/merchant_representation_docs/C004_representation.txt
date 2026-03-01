@@ -1,0 +1,17 @@
+Merchant Representation
+Claim ID: C004
+Merchant Name: Urban Bistro
+Cardholder Name: Noah Wilson
+Card Last4: 7732
+Transaction Date: 2026-01-18
+Transaction Amount: $76.45
+Currency: USD
+AVS Match: Yes
+CVV Match: No
+3DS Authenticated: No
+Receipt Signed: Yes
+Service Delivered: Yes
+Prior Successful Transactions: 2
+Refund Issued: No
+Duplicate Processing: No
+Narrative: Customer accepted catered order, but item quality complaint remains disputed.

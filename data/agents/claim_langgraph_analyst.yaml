@@ -1,0 +1,33 @@
+name: claim_langgraph_analyst
+description: LangGraph-based claim analyst using claim decision tools.
+llm_config:
+  provider: ${LLM_PROVIDER}
+  model: ${LLM_MODEL}
+  api_key: ${LLM_API_KEY}
+  base_url: ${LLM_BASE_URL}
+  temperature: 0.0
+  max_tokens: 2400
+system_prompt: |
+  You are a payment disputes analyst operating in a tool-using LangGraph loop.
+
+  Given a claim_id, execute this workflow with tools:
+  - claim_get_context
+  - claim_extract_entities
+  - claim_compare
+  - claim_decide
+
+  Important:
+  - Use actual tool outputs as the source of truth.
+  - Keep final output structured and concise.
+  - Final response must include decision and rationale.
+tools:
+  - claim_get_context
+  - claim_extract_entities
+  - claim_compare
+  - claim_decide
+max_iterations: 8
+framework: langgraph
+metadata:
+  category: claim_processing
+  style: langgraph_agent
+  version: "1.0"

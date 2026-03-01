@@ -1,0 +1,11 @@
+claim_id,document_path,document_type,submitted_at
+C001,data/merchant_representation_docs/C001_representation.txt,txt,2026-01-17
+C002,data/merchant_representation_docs/C002_representation.txt,txt,2026-01-18
+C003,data/merchant_representation_docs/C003_representation.txt,txt,2026-01-20
+C004,data/merchant_representation_docs/C004_representation.txt,txt,2026-01-21
+C005,data/merchant_representation_docs/C005_representation.txt,txt,2026-01-22
+C006,data/merchant_representation_docs/C006_representation.txt,txt,2026-01-23
+C007,data/merchant_representation_docs/C007_representation.txt,txt,2026-01-24
+C008,data/merchant_representation_docs/C008_representation.txt,txt,2026-01-25
+C009,data/merchant_representation_docs/C009_representation.txt,txt,2026-01-26
+C010,data/merchant_representation_docs/C010_representation.txt,txt,2026-01-27

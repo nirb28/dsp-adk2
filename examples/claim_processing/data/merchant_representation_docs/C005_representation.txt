@@ -1,0 +1,17 @@
+Merchant Representation
+Claim ID: C005
+Merchant Name: Cloudnine Travel
+Cardholder Name: Ava Martinez
+Card Last4: 3055
+Transaction Date: 2026-01-19
+Transaction Amount: $1200.00
+Currency: USD
+AVS Match: No
+CVV Match: No
+3DS Authenticated: No
+Receipt Signed: No
+Service Delivered: No
+Prior Successful Transactions: 0
+Refund Issued: No
+Duplicate Processing: No
+Narrative: Merchant cannot provide device fingerprint or authorization logs for this booking.

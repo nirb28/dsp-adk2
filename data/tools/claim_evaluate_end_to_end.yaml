@@ -1,0 +1,13 @@
+name: claim_evaluate_end_to_end
+description: Run extraction, matching, and decisioning rules for one claim id.
+type: function
+module_path: app.tools.claim_tools
+function_name: claim_evaluate_end_to_end
+parameters:
+  - name: claim_id
+    type: string
+    description: Claim identifier such as C001.
+    required: true
+metadata:
+  category: claim_processing
+  version: "1.0"

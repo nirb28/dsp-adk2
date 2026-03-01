@@ -1,0 +1,17 @@
+Merchant Representation
+Claim ID: C008
+Merchant Name: Greenleaf Hotel
+Cardholder Name: Mason Lee
+Card Last4: 4589
+Transaction Date: 2026-01-22
+Transaction Amount: $615.00
+Currency: USD
+AVS Match: Yes
+CVV Match: Yes
+3DS Authenticated: Yes
+Receipt Signed: No
+Service Delivered: Yes
+Prior Successful Transactions: 1
+Refund Issued: No
+Duplicate Processing: No
+Narrative: Merchant submitted check-in logs but cancellation timeline is disputed.

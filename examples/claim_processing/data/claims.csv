@@ -1,0 +1,11 @@
+claim_id,customer_name,card_last4,merchant_name,transaction_date,transaction_amount,currency,reason_code,customer_statement
+C001,Emma Johnson,4421,Northwind Electronics,2026-01-12,249.99,USD,goods_not_received,Customer says package never arrived.
+C002,Liam Carter,8810,Sunset Fitness Club,2026-01-14,89.00,USD,fraud_card_not_present,Customer says they did not authorize membership fee.
+C003,Olivia Brown,1904,Bluebird Air,2026-01-16,540.00,USD,duplicate_charge,Customer claims duplicate ticket billing.
+C004,Noah Wilson,7732,Urban Bistro,2026-01-18,76.45,USD,service_not_as_described,Customer disputes quality of catered dinner.
+C005,Ava Martinez,3055,Cloudnine Travel,2026-01-19,1200.00,USD,unauthorized,Customer says transaction is not theirs.
+C006,Ethan Thomas,6678,Metro Pharmacy,2026-01-20,42.18,USD,fraud_card_present,Customer denies in-store purchase.
+C007,Sophia Garcia,9011,Prime Auto Parts,2026-01-21,312.50,USD,incorrect_amount,Customer says merchant overcharged.
+C008,Mason Lee,4589,Greenleaf Hotel,2026-01-22,615.00,USD,cancelled_recurring,Customer says booking was cancelled.
+C009,Isabella Walker,2244,Peak Streaming,2026-01-23,39.99,USD,fraud_card_not_present,Customer says card details were stolen.
+C010,James Hall,7120,City Dental Group,2026-01-25,180.00,USD,service_not_received,Customer says appointment never happened.

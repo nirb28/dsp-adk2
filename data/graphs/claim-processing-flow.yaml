@@ -1,0 +1,82 @@
+id: claim-processing-flow
+name: Claim Processing Flow
+description: Deterministic graph flow for credit card claim processing.
+entry_point: START
+max_iterations: 20
+timeout: 300
+streaming: false
+nodes:
+  - id: START
+    name: Start
+    type: start
+
+  - id: load_context
+    name: Load Claim Context
+    type: tool
+    tool_id: claim_get_context
+    input_mapping:
+      claim_id: $.claim_id
+    output_mapping:
+      claim_id: $.response.claim_id
+      claim_record: $.response.claim_record
+      reason_code: $.response.claim_record.reason_code
+      representation_text: $.response.merchant_representation_text
+
+  - id: extract_entities
+    name: Extract Entities
+    type: tool
+    tool_id: claim_extract_entities
+    input_mapping:
+      representation_text: $.representation_text
+    output_mapping:
+      extracted_entities: $.response
+
+  - id: compare
+    name: Compare Attributes
+    type: tool
+    tool_id: claim_compare
+    input_mapping:
+      claim_record: $.claim_record
+      extracted_entities: $.extracted_entities
+    output_mapping:
+      comparison: $.response
+
+  - id: decide
+    name: Decide Claim
+    type: tool
+    tool_id: claim_decide
+    input_mapping:
+      comparison: $.comparison
+      reason_code: $.reason_code
+    output_mapping:
+      decision_result: $.response
+
+  - id: END
+    name: End
+    type: end
+
+edges:
+  - id: start_to_load
+    source: START
+    target: load_context
+    type: normal
+  - id: load_to_extract
+    source: load_context
+    target: extract_entities
+    type: normal
+  - id: extract_to_compare
+    source: extract_entities
+    target: compare
+    type: normal
+  - id: compare_to_decide
+    source: compare
+    target: decide
+    type: normal
+  - id: decide_to_end
+    source: decide
+    target: END
+    type: normal
+
+metadata:
+  category: claim_processing
+  version: "1.0"

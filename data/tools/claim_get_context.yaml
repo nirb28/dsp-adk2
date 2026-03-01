@@ -1,0 +1,13 @@
+name: claim_get_context
+description: Load claim row and merchant representation text for a given claim id.
+type: function
+module_path: app.tools.claim_tools
+function_name: claim_get_context
+parameters:
+  - name: claim_id
+    type: string
+    description: Claim identifier such as C001.
+    required: true
+metadata:
+  category: claim_processing
+  version: "1.0"

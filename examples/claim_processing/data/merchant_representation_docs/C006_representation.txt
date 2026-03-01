@@ -1,0 +1,17 @@
+Merchant Representation
+Claim ID: C006
+Merchant Name: Metro Pharmacy
+Cardholder Name: Ethan Thomas
+Card Last4: 6678
+Transaction Date: 2026-01-20
+Transaction Amount: $42.18
+Currency: USD
+AVS Match: Yes
+CVV Match: Yes
+3DS Authenticated: No
+Receipt Signed: Yes
+Service Delivered: Yes
+Prior Successful Transactions: 6
+Refund Issued: No
+Duplicate Processing: No
+Narrative: In-store chip-and-pin purchase with signed receipt and loyalty history.

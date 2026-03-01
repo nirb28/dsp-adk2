@@ -1,0 +1,32 @@
+name: claim_tool_assisted_analyst
+description: Claim analyst that uses tools for extraction, comparison, and decision.
+llm_config:
+  provider: ${LLM_PROVIDER}
+  model: ${LLM_MODEL}
+  api_key: ${LLM_API_KEY}
+  base_url: ${LLM_BASE_URL}
+  temperature: 0.0
+  max_tokens: 2200
+system_prompt: |
+  You are a payment disputes analyst with claim tools.
+
+  For each request with a claim_id:
+  1) Call claim_get_context(claim_id)
+  2) Call claim_extract_entities(representation_text)
+  3) Call claim_compare(claim_record, extracted_entities)
+  4) Call claim_decide(comparison, reason_code)
+  5) Return a concise JSON summary with:
+     claim_id, decision, rationale, extracted_entities, comparison.
+
+  Never skip steps and do not invent values.
+tools:
+  - claim_get_context
+  - claim_extract_entities
+  - claim_compare
+  - claim_decide
+max_iterations: 6
+framework: openai_direct
+metadata:
+  category: claim_processing
+  style: tool_assisted
+  version: "1.0"

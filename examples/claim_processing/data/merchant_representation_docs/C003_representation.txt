@@ -1,0 +1,17 @@
+Merchant Representation
+Claim ID: C003
+Merchant Name: Bluebird Air
+Cardholder Name: Olivia Brown
+Card Last4: 1904
+Transaction Date: 2026-01-16
+Transaction Amount: $540.00
+Currency: USD
+AVS Match: Yes
+CVV Match: Yes
+3DS Authenticated: Yes
+Receipt Signed: No
+Service Delivered: Yes
+Prior Successful Transactions: 1
+Refund Issued: No
+Duplicate Processing: Yes
+Narrative: Merchant confirms booking engine submitted the charge twice during a retry event.

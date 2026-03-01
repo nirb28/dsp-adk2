@@ -1,0 +1,17 @@
+name: claim_compare
+description: Compare extracted entities against a claim record from CSV.
+type: function
+module_path: app.tools.claim_tools
+function_name: claim_compare
+parameters:
+  - name: claim_record
+    type: object
+    description: Claim row dictionary from claim_get_context.
+    required: true
+  - name: extracted_entities
+    type: object
+    description: Structured entities from claim_extract_entities.
+    required: true
+metadata:
+  category: claim_processing
+  version: "1.0"

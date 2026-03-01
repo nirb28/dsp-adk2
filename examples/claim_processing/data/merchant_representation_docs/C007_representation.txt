@@ -1,0 +1,17 @@
+Merchant Representation
+Claim ID: C007
+Merchant Name: Prime Auto Parts
+Cardholder Name: James Hall
+Card Last4: 7120
+Transaction Date: 2026-01-21
+Transaction Amount: $312.50
+Currency: USD
+AVS Match: Yes
+CVV Match: Yes
+3DS Authenticated: Yes
+Receipt Signed: No
+Service Delivered: Yes
+Prior Successful Transactions: 3
+Refund Issued: No
+Duplicate Processing: No
+Narrative: Merchant invoice reflects ordered brake kit and shipping confirmation.

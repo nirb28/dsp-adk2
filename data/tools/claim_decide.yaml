@@ -1,0 +1,17 @@
+name: claim_decide
+description: Apply decision rules and return approved, denied, or continue_arbitration.
+type: function
+module_path: app.tools.claim_tools
+function_name: claim_decide
+parameters:
+  - name: comparison
+    type: object
+    description: Comparison output from claim_compare.
+    required: true
+  - name: reason_code
+    type: string
+    description: Dispute reason code from claim record.
+    required: true
+metadata:
+  category: claim_processing
+  version: "1.0"

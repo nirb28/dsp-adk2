@@ -1,0 +1,17 @@
+Merchant Representation
+Claim ID: C002
+Merchant Name: Sunset Fitness Club
+Cardholder Name: Liam Carter
+Card Last4: 8810
+Transaction Date: 2026-01-14
+Transaction Amount: $89.00
+Currency: USD
+AVS Match: Yes
+CVV Match: Yes
+3DS Authenticated: Yes
+Receipt Signed: Yes
+Service Delivered: Yes
+Prior Successful Transactions: 4
+Refund Issued: No
+Duplicate Processing: No
+Narrative: Recurring membership charge aligns with signed terms and prior monthly successful transactions.

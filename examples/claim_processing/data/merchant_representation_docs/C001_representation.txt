@@ -1,0 +1,17 @@
+Merchant Representation
+Claim ID: C001
+Merchant Name: Northwind Electronics
+Cardholder Name: Emma Johnson
+Card Last4: 4421
+Transaction Date: 2026-01-12
+Transaction Amount: $249.99
+Currency: USD
+AVS Match: Yes
+CVV Match: Yes
+3DS Authenticated: No
+Receipt Signed: No
+Service Delivered: No
+Prior Successful Transactions: 0
+Refund Issued: No
+Duplicate Processing: No
+Narrative: Tracking number was generated but carrier returned package to sender and customer did not receive goods.

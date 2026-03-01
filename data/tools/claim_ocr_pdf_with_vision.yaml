@@ -1,0 +1,22 @@
+name: claim_ocr_pdf_with_vision
+description: OCR merchant representation PDF pages with a vision LLM and return extracted text.
+type: function
+module_path: app.tools.claim_tools
+function_name: claim_ocr_pdf_with_vision
+parameters:
+  - name: pdf_path
+    type: string
+    description: Local absolute path to merchant representation PDF.
+    required: true
+  - name: model
+    type: string
+    description: Vision model name (for example meta/llama-3.2-90b-vision-instruct).
+    required: false
+  - name: max_pages
+    type: number
+    description: Maximum number of pages to OCR.
+    required: false
+    default: 2
+metadata:
+  category: claim_processing
+  version: "1.0"

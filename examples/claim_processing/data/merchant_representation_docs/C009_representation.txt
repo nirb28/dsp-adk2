@@ -1,0 +1,17 @@
+Merchant Representation
+Claim ID: C009
+Merchant Name: Peak Streaming
+Cardholder Name: Isabella Walker
+Card Last4: 2244
+Transaction Date: 2026-01-23
+Transaction Amount: $39.99
+Currency: USD
+AVS Match: No
+CVV Match: No
+3DS Authenticated: No
+Receipt Signed: No
+Service Delivered: Yes
+Prior Successful Transactions: 0
+Refund Issued: No
+Duplicate Processing: No
+Narrative: Merchant has only IP geolocation and cannot produce trusted authentication logs.
