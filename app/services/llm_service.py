@@ -24,9 +24,18 @@ class LLMService:
             return value
         pattern = r"\$\{([^}]+)\}"
         resolved = value
-        for match in re.findall(pattern, value):
-            env_value = os.getenv(match, "")
-            resolved = resolved.replace(f"${{{match}}}", env_value)
+        # Support nested indirection such as ${LLM_BASE_URL} -> ${AZURE_OPENAI_BASE_URL} -> https://...
+        for _ in range(3):
+            matches = re.findall(pattern, resolved)
+            if not matches:
+                break
+            updated = resolved
+            for match in matches:
+                env_value = os.getenv(match, "")
+                updated = updated.replace(f"${{{match}}}", env_value)
+            if updated == resolved:
+                break
+            resolved = updated
         return resolved
 
     @staticmethod
@@ -83,6 +92,23 @@ class LLMService:
         override: Optional[LLMOverride] = None,
     ) -> LLMConfig:
         config = base_config or LLMService._default_config()
+
+        # Always expand env placeholders from YAML/base config values (e.g. ${LLM_BASE_URL})
+        # before applying request-time overrides.
+        config = config.model_copy(
+            update={
+                "provider": LLMService._expand_env_value(config.provider) or config.provider,
+                "model": LLMService._expand_env_value(config.model) or config.model,
+                "api_key": LLMService._expand_env_value(config.api_key)
+                if config.api_key is not None
+                else None,
+                "base_url": LLMService._expand_env_value(config.base_url)
+                if config.base_url is not None
+                else None,
+            }
+        )
+        config.additional_params = LLMService._expand_env_in_additional_params(config.additional_params)
+
         if not override:
             return config
 

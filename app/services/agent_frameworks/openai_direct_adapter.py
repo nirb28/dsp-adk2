@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from typing import Any, Dict, List, Tuple, Optional
+
+import httpx
 
 from app.config import settings
 from app.models import AgentConfig, LLMOverride
@@ -24,8 +27,28 @@ class OpenAIDirectAdapter(AgentFramework):
         context: Dict[str, Any],
         llm_override: Optional[LLMOverride] = None,
     ) -> Tuple[str, List[Dict[str, Any]]]:
+        openai_module = None
+
+        if settings.langfuse_enabled:
+            try:
+                from langfuse.openai import openai as langfuse_openai
+
+                if settings.langfuse_public_key:
+                    os.environ.setdefault("LANGFUSE_PUBLIC_KEY", settings.langfuse_public_key)
+                if settings.langfuse_secret_key:
+                    os.environ.setdefault("LANGFUSE_SECRET_KEY", settings.langfuse_secret_key)
+                if settings.langfuse_host:
+                    os.environ.setdefault("LANGFUSE_HOST", settings.langfuse_host)
+
+                openai_module = langfuse_openai
+                self.logger.debug("Langfuse OpenAI wrapper enabled for openai_direct")
+            except Exception as exc:
+                self.logger.warning("Langfuse OpenAI wrapper disabled: %s", exc)
+
         try:
-            import openai
+            if openai_module is None:
+                import openai as native_openai
+                openai_module = native_openai
         except ImportError as exc:
             raise ImportError(
                 "openai package is required for openai_direct framework. Install with 'pip install openai'."
@@ -35,7 +58,24 @@ class OpenAIDirectAdapter(AgentFramework):
         api_key = llm_config.api_key or settings.llm_api_key
         base_url = llm_config.base_url or settings.llm_base_url
 
-        client = openai.OpenAI(api_key=api_key, base_url=base_url)
+        def _strip_extra_headers(request: httpx.Request) -> None:
+            for header in list(request.headers.keys()):
+                header_lower = header.lower()
+                if header_lower == "x-stainless-raw-response":
+                    continue
+                if header_lower.startswith("x-stainless-"):
+                    request.headers.pop(header, None)
+
+        http_client = httpx.Client(
+            verify=settings.ssl_verify,
+            event_hooks={"request": [_strip_extra_headers]},
+        )
+
+        client = openai_module.OpenAI(
+            api_key=api_key,
+            base_url=base_url,
+            http_client=http_client,
+        )
 
         reserved_keys = {
             "model",

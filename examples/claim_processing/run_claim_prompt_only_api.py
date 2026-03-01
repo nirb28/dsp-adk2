@@ -28,7 +28,6 @@ def build_input(claim_id: str) -> str:
 async def main() -> None:
     base_url = os.getenv("ADK2_BASE_URL", "http://localhost:8200")
     claim_id = os.getenv("CLAIM_ID", "C003")
-
     payload = {
         "agent_name": "claim_prompt_only_analyst",
         "input": build_input(claim_id),
