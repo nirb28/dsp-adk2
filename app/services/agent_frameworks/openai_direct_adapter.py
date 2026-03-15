@@ -77,25 +77,10 @@ class OpenAIDirectAdapter(AgentFramework):
             http_client=http_client,
         )
 
-        reserved_keys = {
-            "model",
-            "api_key",
-            "base_url",
-            "temperature",
-            "max_tokens",
-            "extra_headers",
-        }
-        extra_params = {
-            key: value
-            for key, value in (llm_config.additional_params or {}).items()
-            if key not in reserved_keys
-        }
-        request_params = {
-            "temperature": llm_config.temperature,
-            "max_tokens": llm_config.max_tokens,
-            **extra_params,
-        }
-        request_params.pop("extra_headers", None)
+        request_params = LLMService.build_openai_request_params(
+            llm_config,
+            max_tokens_value=llm_config.max_tokens,
+        )
 
         tool_schemas: List[Dict[str, Any]] = []
         tool_lookup: Dict[str, str] = {}

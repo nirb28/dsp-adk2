@@ -1,0 +1,17 @@
+name: sb_recommend_visualization
+description: Choose an appropriate visualization for a profiled Starburst result set
+type: function
+module_path: app.tools.sb_tools
+function_name: sb_recommend_visualization
+parameters:
+  - name: profile
+    type: object
+    description: Result profile from sb_profile_results
+    required: true
+  - name: question
+    type: string
+    description: Original user question
+    required: false
+metadata:
+  category: starburst_bi
+  phase: visualization_selection

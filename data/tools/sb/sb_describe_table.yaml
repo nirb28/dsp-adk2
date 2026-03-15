@@ -1,0 +1,21 @@
+name: sb_describe_table
+description: Describe a Starburst table including its columns
+type: function
+module_path: app.tools.sb_tools
+function_name: sb_describe_table
+parameters:
+  - name: table_name
+    type: string
+    description: Table name to describe
+    required: true
+  - name: catalog
+    type: string
+    description: Starburst catalog name
+    required: false
+  - name: schema
+    type: string
+    description: Starburst schema name
+    required: false
+metadata:
+  category: starburst_bi
+  phase: live_discovery

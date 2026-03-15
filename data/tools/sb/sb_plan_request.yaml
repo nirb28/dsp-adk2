@@ -1,0 +1,17 @@
+name: sb_plan_request
+description: Build a structured BI analysis plan from a user question
+type: function
+module_path: app.tools.sb_tools
+function_name: sb_plan_request
+parameters:
+  - name: question
+    type: string
+    description: Natural language BI question
+    required: true
+  - name: conversation_history
+    type: string
+    description: Optional prior conversation context
+    required: false
+metadata:
+  category: starburst_bi
+  phase: planning

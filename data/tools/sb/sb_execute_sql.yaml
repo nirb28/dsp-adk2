@@ -1,0 +1,30 @@
+name: sb_execute_sql
+description: Execute a validated Starburst SQL query against Starburst Galaxy
+type: function
+module_path: app.tools.sb_tools
+function_name: sb_execute_sql
+parameters:
+  - name: sql
+    type: string
+    description: SQL query to execute
+    required: true
+  - name: catalog
+    type: string
+    description: Starburst catalog override
+    required: false
+  - name: schema
+    type: string
+    description: Starburst schema override
+    required: false
+  - name: limit
+    type: number
+    description: Optional fallback row limit applied during validation
+    required: false
+  - name: validate_first
+    type: boolean
+    description: Whether to validate SQL before execution
+    required: false
+    default: true
+metadata:
+  category: starburst_bi
+  phase: execution

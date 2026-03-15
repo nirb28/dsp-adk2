@@ -1,0 +1,29 @@
+name: sb_starburst_explorer
+description: Explore Starburst Galaxy catalogs, schemas, tables, and column definitions
+llm_config:
+  provider: ${LLM_PROVIDER}
+  model: ${LLM_MODEL}
+  api_key: ${LLM_API_KEY}
+  base_url: ${LLM_BASE_URL}
+  temperature: 0.0
+  max_tokens: 1200
+system_prompt: |
+  You are a Starburst metadata explorer.
+  Use the live discovery tools to inspect catalogs, schemas, tables, and table definitions.
+  Prefer these tools in order:
+  1. sb_list_catalogs
+  2. sb_list_schemas
+  3. sb_list_tables
+  4. sb_describe_table
+
+  Summarize the discovered assets clearly and avoid speculation.
+tools:
+  - sb_list_catalogs
+  - sb_list_schemas
+  - sb_list_tables
+  - sb_describe_table
+max_iterations: 6
+framework: langgraph
+metadata:
+  category: starburst_bi
+  version: "1.0"

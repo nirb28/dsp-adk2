@@ -10,6 +10,26 @@ from app.models import ToolConfig, AgentConfig, GraphConfig
 class YAMLService:
     
     @staticmethod
+    def _resolve_yaml_path(base_dir: str, item_name: str) -> Path:
+        base_path = Path(base_dir)
+        direct_path = base_path / f"{item_name}.yaml"
+        if direct_path.exists():
+            return direct_path
+
+        nested_matches = sorted(base_path.rglob(f"{item_name}.yaml"))
+        if nested_matches:
+            return nested_matches[0]
+
+        return direct_path
+
+    @staticmethod
+    def _list_yaml_names(base_dir: str) -> List[str]:
+        base_path = Path(base_dir)
+        if not base_path.exists():
+            return []
+        return sorted(f.stem for f in base_path.rglob("*.yaml"))
+    
+    @staticmethod
     def resolve_env_vars(data: Dict) -> Dict:
         """Recursively resolve environment variables in YAML data."""
         if isinstance(data, dict):
@@ -38,7 +58,7 @@ class YAMLService:
     @staticmethod
     def load_tool(tool_name: str) -> Optional[ToolConfig]:
         """Load a tool configuration from YAML file."""
-        tool_path = Path(settings.tools_dir) / f"{tool_name}.yaml"
+        tool_path = YAMLService._resolve_yaml_path(settings.tools_dir, tool_name)
         if not tool_path.exists():
             return None
         
@@ -51,14 +71,14 @@ class YAMLService:
     @staticmethod
     def save_tool(tool: ToolConfig) -> None:
         """Save a tool configuration to YAML file."""
-        tool_path = Path(settings.tools_dir) / f"{tool.name}.yaml"
+        tool_path = YAMLService._resolve_yaml_path(settings.tools_dir, tool.name)
         with open(tool_path, 'w') as f:
             yaml.dump(tool.model_dump(exclude_none=True), f, default_flow_style=False)
     
     @staticmethod
     def delete_tool(tool_name: str) -> bool:
         """Delete a tool configuration file."""
-        tool_path = Path(settings.tools_dir) / f"{tool_name}.yaml"
+        tool_path = YAMLService._resolve_yaml_path(settings.tools_dir, tool_name)
         if tool_path.exists():
             tool_path.unlink()
             return True
@@ -67,15 +87,12 @@ class YAMLService:
     @staticmethod
     def list_tools() -> List[str]:
         """List all available tool names."""
-        tools_path = Path(settings.tools_dir)
-        if not tools_path.exists():
-            return []
-        return [f.stem for f in tools_path.glob("*.yaml")]
+        return YAMLService._list_yaml_names(settings.tools_dir)
     
     @staticmethod
     def load_agent(agent_name: str) -> Optional[AgentConfig]:
         """Load an agent configuration from YAML file."""
-        agent_path = Path(settings.agents_dir) / f"{agent_name}.yaml"
+        agent_path = YAMLService._resolve_yaml_path(settings.agents_dir, agent_name)
         if not agent_path.exists():
             return None
         
@@ -88,14 +105,14 @@ class YAMLService:
     @staticmethod
     def save_agent(agent: AgentConfig) -> None:
         """Save an agent configuration to YAML file."""
-        agent_path = Path(settings.agents_dir) / f"{agent.name}.yaml"
+        agent_path = YAMLService._resolve_yaml_path(settings.agents_dir, agent.name)
         with open(agent_path, 'w') as f:
             yaml.dump(agent.model_dump(exclude_none=True), f, default_flow_style=False)
     
     @staticmethod
     def delete_agent(agent_name: str) -> bool:
         """Delete an agent configuration file."""
-        agent_path = Path(settings.agents_dir) / f"{agent_name}.yaml"
+        agent_path = YAMLService._resolve_yaml_path(settings.agents_dir, agent_name)
         if agent_path.exists():
             agent_path.unlink()
             return True
@@ -104,15 +121,12 @@ class YAMLService:
     @staticmethod
     def list_agents() -> List[str]:
         """List all available agent names."""
-        agents_path = Path(settings.agents_dir)
-        if not agents_path.exists():
-            return []
-        return [f.stem for f in agents_path.glob("*.yaml")]
+        return YAMLService._list_yaml_names(settings.agents_dir)
 
     @staticmethod
     def load_graph(graph_id: str) -> Optional[GraphConfig]:
         """Load a graph configuration from YAML file."""
-        graph_path = Path(settings.graphs_dir) / f"{graph_id}.yaml"
+        graph_path = YAMLService._resolve_yaml_path(settings.graphs_dir, graph_id)
         if not graph_path.exists():
             return None
 
@@ -125,14 +139,14 @@ class YAMLService:
     @staticmethod
     def save_graph(graph: GraphConfig) -> None:
         """Save a graph configuration to YAML file."""
-        graph_path = Path(settings.graphs_dir) / f"{graph.id}.yaml"
+        graph_path = YAMLService._resolve_yaml_path(settings.graphs_dir, graph.id)
         with open(graph_path, "w") as f:
             yaml.dump(graph.model_dump(exclude_none=True), f, default_flow_style=False)
 
     @staticmethod
     def delete_graph(graph_id: str) -> bool:
         """Delete a graph configuration file."""
-        graph_path = Path(settings.graphs_dir) / f"{graph_id}.yaml"
+        graph_path = YAMLService._resolve_yaml_path(settings.graphs_dir, graph_id)
         if graph_path.exists():
             graph_path.unlink()
             return True
@@ -141,7 +155,4 @@ class YAMLService:
     @staticmethod
     def list_graphs() -> List[str]:
         """List all available graph IDs."""
-        graphs_path = Path(settings.graphs_dir)
-        if not graphs_path.exists():
-            return []
-        return [f.stem for f in graphs_path.glob("*.yaml")]
+        return YAMLService._list_yaml_names(settings.graphs_dir)

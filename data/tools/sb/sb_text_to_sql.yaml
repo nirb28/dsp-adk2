@@ -1,0 +1,33 @@
+name: sb_text_to_sql
+description: Generate Starburst SQL from a BI question using semantic metadata and example queries
+type: function
+module_path: app.tools.sb_tools
+function_name: sb_text_to_sql
+parameters:
+  - name: question
+    type: string
+    description: Natural language BI question
+    required: true
+  - name: plan
+    type: object
+    description: Structured planning output
+    required: false
+  - name: semantic_context
+    type: object
+    description: Semantic metadata retrieved for the question
+    required: false
+  - name: semantic_summary
+    type: string
+    description: Human-readable semantic summary
+    required: false
+  - name: catalog
+    type: string
+    description: Starburst catalog override
+    required: false
+  - name: schema
+    type: string
+    description: Starburst schema override
+    required: false
+metadata:
+  category: starburst_bi
+  phase: sql_generation

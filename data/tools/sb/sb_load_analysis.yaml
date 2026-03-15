@@ -1,0 +1,13 @@
+name: sb_load_analysis
+description: Load a previously saved BI analysis bundle
+type: function
+module_path: app.tools.sb_tools
+function_name: sb_load_analysis
+parameters:
+  - name: analysis_id
+    type: string
+    description: Saved analysis identifier
+    required: true
+metadata:
+  category: starburst_bi
+  phase: persistence

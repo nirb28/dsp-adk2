@@ -2,9 +2,11 @@ import json
 import logging
 import os
 import re
+import time
 from typing import Optional, Any, Iterable
 
 import httpx
+import openai
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from app.models import LLMConfig, LLMOverride
@@ -15,6 +17,7 @@ from app.services.openai_http_logger import OpenAIHTTPLogger
 class LLMService:
 
     logger = logging.getLogger(__name__)
+    _max_invoke_retries = 3
 
     @staticmethod
     def _expand_env_value(value: Optional[str]) -> Optional[str]:
@@ -136,6 +139,78 @@ class LLMService:
             }
 
         return resolved
+
+    @staticmethod
+    def _normalize_positive_int(value: Any, field_name: str) -> Optional[int]:
+        if value is None:
+            return None
+        if isinstance(value, bool):
+            LLMService.logger.warning("Ignoring non-integer %s value: %s", field_name, value)
+            return None
+        try:
+            normalized = int(value)
+        except (TypeError, ValueError):
+            LLMService.logger.warning("Ignoring invalid %s value: %s", field_name, value)
+            return None
+        if normalized < 1:
+            LLMService.logger.warning("Ignoring non-positive %s value: %s", field_name, value)
+            return None
+        return normalized
+
+    @staticmethod
+    def build_openai_request_params(
+        llm_config: LLMConfig,
+        *,
+        max_tokens_value: Any = None,
+        temperature_value: Optional[float] = None,
+        top_p_value: Optional[float] = None,
+        for_langchain: bool = False,
+    ) -> dict[str, Any]:
+        additional_params = dict(llm_config.additional_params or {})
+        disabled_params = additional_params.pop("disabled_params", None)
+        additional_params.pop("model", None)
+        additional_params.pop("api_key", None)
+        additional_params.pop("base_url", None)
+        additional_params.pop("temperature", None)
+        additional_params.pop("max_tokens", None)
+        additional_params.pop("max_completion_tokens", None)
+        additional_params.pop("max_output_tokens", None)
+        additional_params.pop("extra_headers", None)
+
+        request_params = dict(additional_params)
+        request_params["temperature"] = (
+            llm_config.temperature if temperature_value is None else temperature_value
+        )
+
+        if top_p_value is None and "top_p" in request_params:
+            top_p_value = request_params.pop("top_p")
+        if top_p_value is not None:
+            request_params["top_p"] = top_p_value
+
+        effective_max_tokens = LLMService._normalize_positive_int(
+            llm_config.max_tokens if max_tokens_value is None else max_tokens_value,
+            "max_tokens",
+        )
+
+        if effective_max_tokens is not None and not (
+            for_langchain and settings.llm_disable_max_completion_tokens
+        ):
+            request_params["max_tokens"] = effective_max_tokens
+
+        if for_langchain:
+            merged_disabled_params = dict(disabled_params) if isinstance(disabled_params, dict) else {}
+            if settings.llm_disable_max_completion_tokens:
+                merged_disabled_params["max_completion_tokens"] = None
+                merged_disabled_params["max_output_tokens"] = None
+                if effective_max_tokens is not None:
+                    LLMService.logger.warning(
+                        "Omitting max_tokens for LangChain ChatOpenAI request to %s because max_completion_tokens is disabled.",
+                        llm_config.model,
+                    )
+            if merged_disabled_params:
+                request_params["disabled_params"] = merged_disabled_params
+
+        return request_params
     
     @staticmethod
     def get_llm(llm_config: Optional[LLMConfig] = None):
@@ -145,25 +220,11 @@ class LLMService:
             llm_config = LLMService._default_config()
 
         api_key = llm_config.api_key or settings.llm_api_key
-        reserved_keys = {
-            "model",
-            "api_key",
-            "base_url",
-            "temperature",
-            "max_tokens",
-            "extra_headers",
-        }
-        extra_params = {
-            key: value
-            for key, value in (llm_config.additional_params or {}).items()
-            if key not in reserved_keys
-        }
-        request_params = {
-            "temperature": llm_config.temperature,
-            "max_tokens": llm_config.max_tokens,
-            **extra_params,
-        }
-        request_params.pop("extra_headers", None)
+        request_params = LLMService.build_openai_request_params(
+            llm_config,
+            max_tokens_value=llm_config.max_tokens,
+            for_langchain=True,
+        )
 
         def _strip_extra_headers(request: httpx.Request) -> None:
             for header in list(request.headers.keys()):
@@ -213,6 +274,30 @@ class LLMService:
             callbacks=callbacks if callbacks else None,
             **request_params,
         )
+
+    @staticmethod
+    def _extract_retry_delay(exc: Exception, attempt: int) -> float:
+        response = getattr(exc, "response", None)
+        headers = getattr(response, "headers", {}) or {}
+        retry_after = headers.get("retry-after")
+        if retry_after:
+            try:
+                return max(float(retry_after), 1.0)
+            except (TypeError, ValueError):
+                pass
+        return float(min(60, 2 ** attempt))
+
+    @staticmethod
+    def _is_retryable_rate_limit(exc: Exception) -> bool:
+        if isinstance(exc, openai.RateLimitError):
+            return True
+        if isinstance(exc, httpx.HTTPStatusError) and exc.response is not None and exc.response.status_code == 429:
+            return True
+        status_code = getattr(exc, "status_code", None)
+        if status_code == 429:
+            return True
+        message = str(exc).lower()
+        return "429" in message or "rate limit" in message or "too many requests" in message
     
     @staticmethod
     def invoke(llm_config: LLMConfig, system_prompt: str, user_message: str) -> str:
@@ -237,7 +322,30 @@ class LLMService:
                 ),
             )
 
-        response = llm.invoke(messages)
+        last_exc: Optional[Exception] = None
+        for attempt in range(LLMService._max_invoke_retries + 1):
+            try:
+                response = llm.invoke(messages)
+                break
+            except Exception as exc:
+                last_exc = exc
+                if attempt >= LLMService._max_invoke_retries or not LLMService._is_retryable_rate_limit(exc):
+                    raise
+                delay_seconds = LLMService._extract_retry_delay(exc, attempt)
+                LLMService.logger.warning(
+                    "LLM rate-limited for %s/%s on attempt %s/%s. Retrying in %.1f seconds.",
+                    llm_config.provider,
+                    llm_config.model,
+                    attempt + 1,
+                    LLMService._max_invoke_retries + 1,
+                    delay_seconds,
+                )
+                time.sleep(delay_seconds)
+        else:
+            if last_exc is not None:
+                raise last_exc
+            raise RuntimeError("LLM invocation failed without a response")
+
         LLMService.logger.debug(f"LLM response received (length: {len(response.content)} chars)")
 
         if settings.debug_trace:

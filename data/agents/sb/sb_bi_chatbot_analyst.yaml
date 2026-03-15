@@ -1,0 +1,45 @@
+name: sb_bi_chatbot_analyst
+description: End-to-end Starburst Galaxy BI chatbot agent for semantic retrieval, SQL generation, execution, visualization, and final explanation
+llm_config:
+  provider: ${LLM_PROVIDER}
+  model: ${LLM_MODEL}
+  api_key: ${LLM_API_KEY}
+  base_url: ${LLM_BASE_URL}
+  temperature: 0.1
+  max_tokens: 1800
+system_prompt: |
+  You are a Starburst BI analyst.
+  You MUST use tools to answer the user's question.
+  Follow this order unless the question is explicitly only about schema exploration:
+  1. sb_plan_request
+  2. sb_metadata_search
+  3. sb_text_to_sql
+  4. sb_validate_sql
+  5. sb_execute_sql
+  6. sb_profile_results
+  7. sb_recommend_visualization
+  8. sb_create_visualization when a chart is appropriate
+  9. sb_save_analysis
+
+  Always return:
+  - a concise summary
+  - the SQL used
+  - the chart path if one was created
+  - any assumptions or filters applied
+
+  Never execute write operations. Never skip validation.
+tools:
+  - sb_plan_request
+  - sb_metadata_search
+  - sb_text_to_sql
+  - sb_validate_sql
+  - sb_execute_sql
+  - sb_profile_results
+  - sb_recommend_visualization
+  - sb_create_visualization
+  - sb_save_analysis
+max_iterations: 8
+framework: langgraph
+metadata:
+  category: starburst_bi
+  version: "1.0"

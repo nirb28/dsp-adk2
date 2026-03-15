@@ -1,0 +1,13 @@
+name: sb_list_schemas
+description: List schemas for a Starburst catalog
+type: function
+module_path: app.tools.sb_tools
+function_name: sb_list_schemas
+parameters:
+  - name: catalog
+    type: string
+    description: Starburst catalog name
+    required: false
+metadata:
+  category: starburst_bi
+  phase: live_discovery

@@ -52,30 +52,12 @@ async def analyze_image(
 
     client = openai.OpenAI(api_key=api_key, base_url=llm_config.base_url or settings.llm_base_url)
 
-    reserved_keys = {
-        "model",
-        "api_key",
-        "base_url",
-        "temperature",
-        "max_tokens",
-        "extra_headers",
-    }
-    extra_params = {
-        key: value
-        for key, value in (llm_config.additional_params or {}).items()
-        if key not in reserved_keys
-    }
-    if top_p is None and "top_p" in extra_params:
-        top_p = extra_params.pop("top_p")
-
-    request_params: Dict[str, Any] = {
-        **extra_params,
-    }
-    request_params["temperature"] = llm_config.temperature if temperature is None else temperature
-    request_params["max_tokens"] = llm_config.max_tokens if max_tokens is None else max_tokens
-    if top_p is not None:
-        request_params["top_p"] = top_p
-    request_params.pop("extra_headers", None)
+    request_params: Dict[str, Any] = LLMService.build_openai_request_params(
+        llm_config,
+        max_tokens_value=max_tokens,
+        temperature_value=temperature,
+        top_p_value=top_p,
+    )
 
     messages = [
         {

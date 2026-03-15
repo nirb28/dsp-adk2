@@ -1,0 +1,21 @@
+name: sb_profile_results
+description: Profile Starburst query results and detect chartable shapes
+type: function
+module_path: app.tools.sb_tools
+function_name: sb_profile_results
+parameters:
+  - name: rows
+    type: array
+    description: Query result rows
+    required: true
+  - name: columns
+    type: array
+    description: Optional ordered list of column names
+    required: false
+  - name: question
+    type: string
+    description: Original user question for better chart inference
+    required: false
+metadata:
+  category: starburst_bi
+  phase: profiling

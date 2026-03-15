@@ -1,0 +1,9 @@
+name: sb_list_catalogs
+description: List catalogs available in Starburst Galaxy
+type: function
+module_path: app.tools.sb_tools
+function_name: sb_list_catalogs
+parameters: []
+metadata:
+  category: starburst_bi
+  phase: live_discovery

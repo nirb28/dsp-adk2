@@ -1,0 +1,985 @@
+{
+  "analysis_id": "how-many-accounts-do-we-have-by-state-ef052260",
+  "saved_at": "2026-03-15T22:04:36.769940Z",
+  "question": "How many accounts do we have by state?",
+  "sql": "SELECT c.state,\n       COUNT(a.acctkey) AS total_accounts\nFROM sample.burstbank.account a\nJOIN sample.burstbank.customer c\n  ON a.custkey = c.custkey\nGROUP BY 1\nORDER BY total_accounts DESC\nLIMIT 200",
+  "result": {
+    "sql": "SELECT c.state,\n       COUNT(a.acctkey) AS total_accounts\nFROM sample.burstbank.account a\nJOIN sample.burstbank.customer c\n  ON a.custkey = c.custkey\nGROUP BY 1\nORDER BY total_accounts DESC\nLIMIT 200",
+    "columns": [
+      "state",
+      "total_accounts"
+    ],
+    "rows": [
+      {
+        "state": "NT",
+        "total_accounts": 49
+      },
+      {
+        "state": "PE",
+        "total_accounts": 49
+      },
+      {
+        "state": "NL",
+        "total_accounts": 49
+      },
+      {
+        "state": "BC",
+        "total_accounts": 47
+      },
+      {
+        "state": "QC",
+        "total_accounts": 46
+      },
+      {
+        "state": "YT",
+        "total_accounts": 40
+      },
+      {
+        "state": "ON",
+        "total_accounts": 39
+      },
+      {
+        "state": "NU",
+        "total_accounts": 37
+      },
+      {
+        "state": "NB",
+        "total_accounts": 36
+      },
+      {
+        "state": "MB",
+        "total_accounts": 36
+      },
+      {
+        "state": "NS",
+        "total_accounts": 32
+      },
+      {
+        "state": "AB",
+        "total_accounts": 31
+      },
+      {
+        "state": "SK",
+        "total_accounts": 31
+      },
+      {
+        "state": "AP",
+        "total_accounts": 22
+      },
+      {
+        "state": "OK",
+        "total_accounts": 16
+      },
+      {
+        "state": "SC",
+        "total_accounts": 14
+      },
+      {
+        "state": "MD",
+        "total_accounts": 14
+      },
+      {
+        "state": "WA",
+        "total_accounts": 12
+      },
+      {
+        "state": "WV",
+        "total_accounts": 12
+      },
+      {
+        "state": "DC",
+        "total_accounts": 12
+      },
+      {
+        "state": "AA",
+        "total_accounts": 12
+      },
+      {
+        "state": "AK",
+        "total_accounts": 11
+      },
+      {
+        "state": "SD",
+        "total_accounts": 11
+      },
+      {
+        "state": "MI",
+        "total_accounts": 11
+      },
+      {
+        "state": "CT",
+        "total_accounts": 11
+      },
+      {
+        "state": "VT",
+        "total_accounts": 11
+      },
+      {
+        "state": "OH",
+        "total_accounts": 10
+      },
+      {
+        "state": "HI",
+        "total_accounts": 10
+      },
+      {
+        "state": "AE",
+        "total_accounts": 10
+      },
+      {
+        "state": "UT",
+        "total_accounts": 10
+      },
+      {
+        "state": "ND",
+        "total_accounts": 10
+      },
+      {
+        "state": "NE",
+        "total_accounts": 10
+      },
+      {
+        "state": "KY",
+        "total_accounts": 10
+      },
+      {
+        "state": "NV",
+        "total_accounts": 10
+      },
+      {
+        "state": "WI",
+        "total_accounts": 10
+      },
+      {
+        "state": "KS",
+        "total_accounts": 10
+      },
+      {
+        "state": "ID",
+        "total_accounts": 9
+      },
+      {
+        "state": "NC",
+        "total_accounts": 9
+      },
+      {
+        "state": "IN",
+        "total_accounts": 9
+      },
+      {
+        "state": "WY",
+        "total_accounts": 9
+      },
+      {
+        "state": "OR",
+        "total_accounts": 9
+      },
+      {
+        "state": "ME",
+        "total_accounts": 8
+      },
+      {
+        "state": "MO",
+        "total_accounts": 8
+      },
+      {
+        "state": "GA",
+        "total_accounts": 8
+      },
+      {
+        "state": "AZ",
+        "total_accounts": 8
+      },
+      {
+        "state": "DE",
+        "total_accounts": 8
+      },
+      {
+        "state": "MS",
+        "total_accounts": 8
+      },
+      {
+        "state": "VA",
+        "total_accounts": 8
+      },
+      {
+        "state": "MT",
+        "total_accounts": 8
+      },
+      {
+        "state": "NY",
+        "total_accounts": 7
+      },
+      {
+        "state": "NM",
+        "total_accounts": 7
+      },
+      {
+        "state": "LA",
+        "total_accounts": 6
+      },
+      {
+        "state": "TN",
+        "total_accounts": 6
+      },
+      {
+        "state": "CA",
+        "total_accounts": 6
+      },
+      {
+        "state": "AR",
+        "total_accounts": 6
+      },
+      {
+        "state": "PA",
+        "total_accounts": 6
+      },
+      {
+        "state": "NJ",
+        "total_accounts": 6
+      },
+      {
+        "state": "MA",
+        "total_accounts": 6
+      },
+      {
+        "state": "TX",
+        "total_accounts": 6
+      },
+      {
+        "state": "NH",
+        "total_accounts": 6
+      },
+      {
+        "state": "IL",
+        "total_accounts": 5
+      },
+      {
+        "state": "FL",
+        "total_accounts": 5
+      },
+      {
+        "state": "AL",
+        "total_accounts": 5
+      },
+      {
+        "state": "RI",
+        "total_accounts": 5
+      },
+      {
+        "state": "IA",
+        "total_accounts": 4
+      },
+      {
+        "state": "CO",
+        "total_accounts": 4
+      },
+      {
+        "state": "MN",
+        "total_accounts": 4
+      }
+    ],
+    "row_count": 67,
+    "catalog": "sample",
+    "schema": "burstbank",
+    "host": "daljeetsm-free-cluster.trino.galaxy.starburst.io",
+    "statement_url": "https://daljeetsm-free-cluster.trino.galaxy.starburst.io:443/v1/statement",
+    "validation": {
+      "sql": "SELECT c.state,\n       COUNT(a.acctkey) AS total_accounts\nFROM sample.burstbank.account a\nJOIN sample.burstbank.customer c\n  ON a.custkey = c.custkey\nGROUP BY 1\nORDER BY total_accounts DESC\nLIMIT 200",
+      "safe_sql": "SELECT c.state,\n       COUNT(a.acctkey) AS total_accounts\nFROM sample.burstbank.account a\nJOIN sample.burstbank.customer c\n  ON a.custkey = c.custkey\nGROUP BY 1\nORDER BY total_accounts DESC\nLIMIT 200",
+      "catalog": "sample",
+      "schema": "burstbank",
+      "can_execute": true,
+      "errors": [],
+      "warnings": [],
+      "applied_limit": null,
+      "allowed_catalogs": [
+        "sample"
+      ],
+      "allowed_schemas": [
+        "burstbank"
+      ],
+      "denied_columns": []
+    },
+    "preview": [
+      {
+        "state": "NT",
+        "total_accounts": 49
+      },
+      {
+        "state": "PE",
+        "total_accounts": 49
+      },
+      {
+        "state": "NL",
+        "total_accounts": 49
+      },
+      {
+        "state": "BC",
+        "total_accounts": 47
+      },
+      {
+        "state": "QC",
+        "total_accounts": 46
+      },
+      {
+        "state": "YT",
+        "total_accounts": 40
+      },
+      {
+        "state": "ON",
+        "total_accounts": 39
+      },
+      {
+        "state": "NU",
+        "total_accounts": 37
+      },
+      {
+        "state": "NB",
+        "total_accounts": 36
+      },
+      {
+        "state": "MB",
+        "total_accounts": 36
+      }
+    ],
+    "execution_time": 2.9088401794433594
+  },
+  "validation": {
+    "sql": "SELECT c.state,\n       COUNT(a.acctkey) AS total_accounts\nFROM sample.burstbank.account a\nJOIN sample.burstbank.customer c\n  ON a.custkey = c.custkey\nGROUP BY 1\nORDER BY total_accounts DESC",
+    "safe_sql": "SELECT c.state,\n       COUNT(a.acctkey) AS total_accounts\nFROM sample.burstbank.account a\nJOIN sample.burstbank.customer c\n  ON a.custkey = c.custkey\nGROUP BY 1\nORDER BY total_accounts DESC\nLIMIT 200",
+    "catalog": "sample",
+    "schema": "burstbank",
+    "can_execute": true,
+    "errors": [],
+    "warnings": [
+      "Applied LIMIT 200 for safety"
+    ],
+    "applied_limit": 200,
+    "allowed_catalogs": [
+      "sample"
+    ],
+    "allowed_schemas": [
+      "burstbank"
+    ],
+    "denied_columns": []
+  },
+  "profile": {
+    "row_count": 67,
+    "column_count": 2,
+    "columns": [
+      {
+        "name": "state",
+        "inferred_type": "string",
+        "non_null_count": 67,
+        "unique_count": 67,
+        "sample_values": [
+          "NT",
+          "PE",
+          "NL",
+          "BC",
+          "QC"
+        ]
+      },
+      {
+        "name": "total_accounts",
+        "inferred_type": "number",
+        "non_null_count": 67,
+        "unique_count": 21,
+        "sample_values": [
+          49,
+          49,
+          49,
+          47,
+          46
+        ]
+      }
+    ],
+    "numeric_columns": [
+      "total_accounts"
+    ],
+    "date_columns": [],
+    "categorical_columns": [],
+    "preview": [
+      {
+        "state": "NT",
+        "total_accounts": 49
+      },
+      {
+        "state": "PE",
+        "total_accounts": 49
+      },
+      {
+        "state": "NL",
+        "total_accounts": 49
+      },
+      {
+        "state": "BC",
+        "total_accounts": 47
+      },
+      {
+        "state": "QC",
+        "total_accounts": 46
+      },
+      {
+        "state": "YT",
+        "total_accounts": 40
+      },
+      {
+        "state": "ON",
+        "total_accounts": 39
+      },
+      {
+        "state": "NU",
+        "total_accounts": 37
+      },
+      {
+        "state": "NB",
+        "total_accounts": 36
+      },
+      {
+        "state": "MB",
+        "total_accounts": 36
+      }
+    ],
+    "recommendation": {
+      "should_visualize": false,
+      "chart_type": null,
+      "reason": "Tabular answer is more appropriate"
+    },
+    "should_visualize": false,
+    "chart_type": null,
+    "x": null,
+    "y": null
+  },
+  "visualization": null,
+  "plan": {
+    "intent": "analysis",
+    "metric": null,
+    "dimensions": [],
+    "filters": [],
+    "time_grain": null,
+    "comparison": null,
+    "requested_visualization": null,
+    "needs_visualization": true,
+    "answer_format": "summary_with_sql",
+    "ambiguities": [],
+    "raw_response": "```json\n{\n  \"intent\": \"Count accounts by state\",\n  \"metric\": \"account_count\",\n  \"dimensions\": [\"state\"],\n  \"filters\": [],\n  \"time_grain\": null,\n  \"comparison\": null,\n  \"requested_visualization\": \"table\",\n  \"needs_visualization\": true,\n  \"answer_format\": \"table\",\n  \"ambiguities\": []\n}\n```"
+  },
+  "semantic_context": {
+    "tables": [
+      {
+        "catalog": "${SB_CATALOG}",
+        "schema": "${SB_SCHEMA}",
+        "name": "account",
+        "description": "Core account-level records for bank customers.",
+        "primary_key": "acctkey",
+        "joins": [
+          {
+            "target_table": "customer",
+            "condition": "account.custkey = customer.custkey",
+            "description": "Join accounts to the owning customer."
+          },
+          {
+            "target_table": "product_profile",
+            "condition": "account.products = product_profile.product",
+            "description": "Join accounts to product definitions when the product reference matches."
+          }
+        ],
+        "columns": [
+          {
+            "name": "custkey",
+            "type": "varchar",
+            "description": "Customer key for the account owner."
+          },
+          {
+            "name": "acctkey",
+            "type": "varchar",
+            "description": "Unique account identifier."
+          },
+          {
+            "name": "products",
+            "type": "varchar",
+            "description": "Product value associated with the account."
+          },
+          {
+            "name": "cc_number",
+            "type": "varchar",
+            "description": "Credit card number, if present for the account."
+          },
+          {
+            "name": "cc_open_date",
+            "type": "varchar",
+            "description": "Credit card open date stored as text."
+          },
+          {
+            "name": "cc_closed_date",
+            "type": "varchar",
+            "description": "Credit card close date stored as text."
+          },
+          {
+            "name": "cc_balance",
+            "type": "double",
+            "description": "Credit card balance."
+          },
+          {
+            "name": "cc_status",
+            "type": "varchar",
+            "description": "Credit card account status."
+          },
+          {
+            "name": "mortgage_id",
+            "type": "varchar",
+            "description": "Mortgage identifier tied to the account."
+          },
+          {
+            "name": "mortgage_balance",
+            "type": "double",
+            "description": "Mortgage balance."
+          },
+          {
+            "name": "mortgage_status",
+            "type": "varchar",
+            "description": "Mortgage status."
+          },
+          {
+            "name": "auto_loan_id",
+            "type": "varchar",
+            "description": "Auto loan identifier tied to the account."
+          },
+          {
+            "name": "auto_loan_balance",
+            "type": "double",
+            "description": "Auto loan balance."
+          },
+          {
+            "name": "auto_loan_status",
+            "type": "varchar",
+            "description": "Auto loan status."
+          }
+        ]
+      },
+      {
+        "catalog": "${SB_CATALOG}",
+        "schema": "${SB_SCHEMA}",
+        "name": "customer",
+        "description": "Core customer records.",
+        "primary_key": "custkey",
+        "joins": [
+          {
+            "target_table": "customer_profile",
+            "condition": "customer.custkey = customer_profile.custkey",
+            "description": "Join customers to extended profile attributes."
+          },
+          {
+            "target_table": "state_census",
+            "condition": "customer.state = state_census.state",
+            "description": "Join customers to state-level census attributes."
+          }
+        ],
+        "columns": [
+          {
+            "name": "custkey",
+            "type": "varchar",
+            "description": "Unique customer identifier."
+          },
+          {
+            "name": "first_name",
+            "type": "varchar",
+            "description": "Customer first name, if present."
+          },
+          {
+            "name": "last_name",
+            "type": "varchar",
+            "description": "Customer last name, if present."
+          },
+          {
+            "name": "city",
+            "type": "varchar",
+            "description": "Customer city, if present."
+          },
+          {
+            "name": "state",
+            "type": "varchar",
+            "description": "Customer state, if present."
+          },
+          {
+            "name": "postcode",
+            "type": "varchar",
+            "description": "Customer postal code, if present."
+          },
+          {
+            "name": "country",
+            "type": "varchar(2)",
+            "description": "Customer country code, if present."
+          },
+          {
+            "name": "estimated_income",
+            "type": "double",
+            "description": "Estimated customer income."
+          },
+          {
+            "name": "fico",
+            "type": "integer",
+            "description": "Customer FICO score."
+          }
+        ]
+      },
+      {
+        "catalog": "${SB_CATALOG}",
+        "schema": "${SB_SCHEMA}",
+        "name": "customer_profile",
+        "description": "Extended customer profile and segmentation attributes.",
+        "primary_key": "custkey",
+        "columns": [
+          {
+            "name": "custkey",
+            "type": "varchar",
+            "description": "Customer identifier."
+          },
+          {
+            "name": "segment",
+            "type": "varchar",
+            "description": "Customer segment or behavioral grouping, if present."
+          },
+          {
+            "name": "income_band",
+            "type": "varchar",
+            "description": "Income grouping, if present."
+          },
+          {
+            "name": "credit_score_band",
+            "type": "varchar",
+            "description": "Credit score grouping, if present."
+          }
+        ]
+      },
+      {
+        "catalog": "${SB_CATALOG}",
+        "schema": "${SB_SCHEMA}",
+        "name": "product_profile",
+        "description": "Banking product reference data.",
+        "primary_key": "product",
+        "columns": [
+          {
+            "name": "product",
+            "type": "varchar",
+            "description": "Product identifier."
+          },
+          {
+            "name": "product_type",
+            "type": "varchar",
+            "description": "Type of banking product, if present."
+          },
+          {
+            "name": "product_name",
+            "type": "varchar",
+            "description": "Product display name, if present."
+          },
+          {
+            "name": "product_category",
+            "type": "varchar",
+            "description": "Product category, if present."
+          }
+        ]
+      },
+      {
+        "catalog": "${SB_CATALOG}",
+        "schema": "${SB_SCHEMA}",
+        "name": "mortgage_payment",
+        "description": "Mortgage payment transactions.",
+        "primary_key": "payment_id",
+        "joins": [
+          {
+            "target_table": "account",
+            "condition": "mortgage_payment.account_id = account.account_id",
+            "description": "Join mortgage payments to accounts."
+          }
+        ],
+        "columns": [
+          {
+            "name": "payment_id",
+            "type": "varchar",
+            "description": "Mortgage payment identifier."
+          },
+          {
+            "name": "account_id",
+            "type": "varchar",
+            "description": "Account associated with the mortgage payment."
+          },
+          {
+            "name": "payment_date",
+            "type": "date",
+            "description": "Date of the mortgage payment."
+          },
+          {
+            "name": "payment_amount",
+            "type": "double",
+            "description": "Amount of the mortgage payment."
+          }
+        ]
+      },
+      {
+        "catalog": "${SB_CATALOG}",
+        "schema": "${SB_SCHEMA}",
+        "name": "auto_loan_payment",
+        "description": "Auto loan payment transactions.",
+        "primary_key": "payment_id",
+        "joins": [
+          {
+            "target_table": "account",
+            "condition": "auto_loan_payment.account_id = account.account_id",
+            "description": "Join auto loan payments to accounts."
+          }
+        ],
+        "columns": [
+          {
+            "name": "payment_id",
+            "type": "varchar",
+            "description": "Auto loan payment identifier."
+          },
+          {
+            "name": "account_id",
+            "type": "varchar",
+            "description": "Account associated with the auto loan payment."
+          },
+          {
+            "name": "payment_date",
+            "type": "date",
+            "description": "Date of the auto loan payment."
+          },
+          {
+            "name": "payment_amount",
+            "type": "double",
+            "description": "Amount of the auto loan payment."
+          }
+        ]
+      },
+      {
+        "catalog": "${SB_CATALOG}",
+        "schema": "${SB_SCHEMA}",
+        "name": "credit_card_payment",
+        "description": "Credit card payment transactions.",
+        "primary_key": "payment_id",
+        "joins": [
+          {
+            "target_table": "account",
+            "condition": "credit_card_payment.account_id = account.account_id",
+            "description": "Join credit card payments to accounts."
+          }
+        ],
+        "columns": [
+          {
+            "name": "payment_id",
+            "type": "varchar",
+            "description": "Credit card payment identifier."
+          },
+          {
+            "name": "account_id",
+            "type": "varchar",
+            "description": "Account associated with the credit card payment."
+          },
+          {
+            "name": "payment_date",
+            "type": "date",
+            "description": "Date of the credit card payment."
+          },
+          {
+            "name": "payment_amount",
+            "type": "double",
+            "description": "Amount of the credit card payment."
+          }
+        ]
+      },
+      {
+        "catalog": "${SB_CATALOG}",
+        "schema": "${SB_SCHEMA}",
+        "name": "employee",
+        "description": "Employee records for staffing and branch analysis.",
+        "primary_key": "employee_id",
+        "columns": [
+          {
+            "name": "employee_id",
+            "type": "varchar",
+            "description": "Unique employee identifier."
+          },
+          {
+            "name": "department",
+            "type": "varchar",
+            "description": "Employee department or business unit, if present."
+          },
+          {
+            "name": "branch_id",
+            "type": "varchar",
+            "description": "Branch identifier, if present."
+          },
+          {
+            "name": "state",
+            "type": "varchar",
+            "description": "Employee state, if present."
+          }
+        ]
+      },
+      {
+        "catalog": "${SB_CATALOG}",
+        "schema": "${SB_SCHEMA}",
+        "name": "state_census",
+        "description": "State-level census reference data for demographic enrichment.",
+        "primary_key": "state",
+        "columns": [
+          {
+            "name": "state",
+            "type": "varchar",
+            "description": "State name or abbreviation."
+          },
+          {
+            "name": "population",
+            "type": "bigint",
+            "description": "Population for the state, if present."
+          },
+          {
+            "name": "median_income",
+            "type": "double",
+            "description": "Median income for the state, if present."
+          }
+        ]
+      }
+    ],
+    "metrics": [
+      {
+        "name": "total_accounts",
+        "description": "Count of bank accounts.",
+        "expression": "count(acctkey)",
+        "table": "account"
+      },
+      {
+        "name": "total_customers",
+        "description": "Count of customers.",
+        "expression": "count(custkey)",
+        "table": "customer"
+      },
+      {
+        "name": "total_employees",
+        "description": "Count of employees.",
+        "expression": "count(employee_id)",
+        "table": "employee"
+      },
+      {
+        "name": "total_mortgage_payments",
+        "description": "Total value of mortgage payments.",
+        "expression": "sum(payment_amount)",
+        "table": "mortgage_payment"
+      },
+      {
+        "name": "total_auto_loan_payments",
+        "description": "Total value of auto loan payments.",
+        "expression": "sum(payment_amount)",
+        "table": "auto_loan_payment"
+      },
+      {
+        "name": "total_credit_card_payments",
+        "description": "Total value of credit card payments.",
+        "expression": "sum(payment_amount)",
+        "table": "credit_card_payment"
+      },
+      {
+        "name": "average_mortgage_payment",
+        "description": "Average mortgage payment amount.",
+        "expression": "avg(payment_amount)",
+        "table": "mortgage_payment"
+      },
+      {
+        "name": "average_auto_loan_payment",
+        "description": "Average auto loan payment amount.",
+        "expression": "avg(payment_amount)",
+        "table": "auto_loan_payment"
+      },
+      {
+        "name": "average_credit_card_payment",
+        "description": "Average credit card payment amount.",
+        "expression": "avg(payment_amount)",
+        "table": "credit_card_payment"
+      }
+    ],
+    "dimensions": [
+      {
+        "name": "account_type",
+        "description": "Type or category of bank account.",
+        "expression": "account_type",
+        "table": "account"
+      },
+      {
+        "name": "account_status",
+        "description": "Operational status of the account.",
+        "expression": "account_status",
+        "table": "account"
+      },
+      {
+        "name": "customer_state",
+        "description": "State associated with the customer.",
+        "expression": "state",
+        "table": "customer"
+      },
+      {
+        "name": "customer_city",
+        "description": "City associated with the customer.",
+        "expression": "city",
+        "table": "customer"
+      },
+      {
+        "name": "customer_segment",
+        "description": "Customer segment or profile grouping.",
+        "expression": "segment",
+        "table": "customer_profile"
+      },
+      {
+        "name": "product_type",
+        "description": "Product type or banking product category.",
+        "expression": "product_type",
+        "table": "product_profile"
+      },
+      {
+        "name": "employee_department",
+        "description": "Department or business unit of the employee.",
+        "expression": "department",
+        "table": "employee"
+      },
+      {
+        "name": "census_state",
+        "description": "State available in census reference data.",
+        "expression": "state",
+        "table": "state_census"
+      },
+      {
+        "name": "payment_date",
+        "description": "Payment transaction date.",
+        "expression": "payment_date",
+        "table": "mortgage_payment"
+      }
+    ],
+    "sample_queries": [
+      {
+        "name": "accounts_by_state",
+        "question": "How many accounts do we have by state?",
+        "sql": "SELECT c.state,\n       COUNT(a.acctkey) AS total_accounts\nFROM ${SB_CATALOG}.${SB_SCHEMA}.account a\nJOIN ${SB_CATALOG}.${SB_SCHEMA}.customer c\n  ON a.custkey = c.custkey\nGROUP BY 1\nORDER BY total_accounts DESC\n"
+      },
+      {
+        "name": "monthly_mortgage_payment_trend",
+        "question": "Show monthly mortgage payments over the last 12 months.",
+        "sql": "SELECT date_trunc('month', payment_date) AS month_start,\n       SUM(payment_amount) AS total_mortgage_payments\nFROM ${SB_CATALOG}.${SB_SCHEMA}.mortgage_payment\nWHERE payment_date >= current_date - INTERVAL '12' month\nGROUP BY 1\nORDER BY 1\n"
+      },
+      {
+        "name": "credit_card_payments_by_product_type",
+        "question": "What is the total credit card payment amount by product type?",
+        "sql": "SELECT p.product_type,\n       SUM(cc.payment_amount) AS total_credit_card_payments\nFROM ${SB_CATALOG}.${SB_SCHEMA}.credit_card_payment cc\nJOIN ${SB_CATALOG}.${SB_SCHEMA}.account a\n  ON cc.acctkey = a.acctkey\nJOIN ${SB_CATALOG}.${SB_SCHEMA}.product_profile p\n  ON a.products = p.product\nGROUP BY 1\nORDER BY total_credit_card_payments DESC\n"
+      }
+    ],
+    "business_rules": [
+      "Prefer joining account to customer on custkey.",
+      "Use state_census only as enrichment or benchmarking context, not as the primary source of customer/account facts.",
+      "Treat customer_profile and product_profile as descriptive dimensions unless the question explicitly requests profile-level detail.",
+      "Validate inferred columns such as product reference fields in product_profile, segment, payment_amount, and payment_date against the live schema before relying on them for production use."
+    ]
+  },
+  "answer": "**Summary**  \nThe query counts all accounts per U.S. state by joining the `account` and `customer` tables on `custkey`. Results are aggregated by `state` and sorted by account count in descending order.\n\n**Visualization**  \nNo chart is recommended; a simple table is sufficient.  \n| State | Total Accounts |\n|-------|---------------|\n| NT | 49 |\n| PE | 49 |\n| NL | 49 |\n| … | … |\n\n**SQL**  \n\n```sql\nSELECT\n    c.state,\n    COUNT(a.acctkey) AS total_accounts\nFROM\n    sample.burstbank.account a\nINNER JOIN\n    sample.burstbank.customer c\n    ON a.custkey = c.custkey\nGROUP BY\n    c.state\nORDER BY\n    total_accounts DESC\nLIMIT 200;   -- safety limit for preview\n```\n\n**Assumptions**  \n- **Filters**: None – all records are included.  \n- **Time grain / period**: Current snapshot; no date filtering.  \n- **Grain**: One row per `state`.  \n- **Caveats**: The dataset contains 67 distinct states; counts reflect the current state of the tables. If you need up‑to‑date numbers, re‑run the query on the live database."
+}

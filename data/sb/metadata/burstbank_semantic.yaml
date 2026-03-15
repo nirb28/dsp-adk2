@@ -1,0 +1,347 @@
+name: burstbank_semantic
+version: "1.0"
+description: Semantic model for the BurstBank sample schema in Starburst Galaxy, focused on customer, account, payment, employee, product, and census analysis.
+default_catalog: sample
+default_schema: burstbank
+metrics:
+  - name: total_accounts
+    description: Count of bank accounts.
+    expression: count(acctkey)
+    table: account
+  - name: total_customers
+    description: Count of customers.
+    expression: count(custkey)
+    table: customer
+  - name: total_employees
+    description: Count of employees.
+    expression: count(employee_id)
+    table: employee
+  - name: total_mortgage_payments
+    description: Total value of mortgage payments.
+    expression: sum(payment_amount)
+    table: mortgage_payment
+  - name: total_auto_loan_payments
+    description: Total value of auto loan payments.
+    expression: sum(payment_amount)
+    table: auto_loan_payment
+  - name: total_credit_card_payments
+    description: Total value of credit card payments.
+    expression: sum(payment_amount)
+    table: credit_card_payment
+  - name: average_mortgage_payment
+    description: Average mortgage payment amount.
+    expression: avg(payment_amount)
+    table: mortgage_payment
+  - name: average_auto_loan_payment
+    description: Average auto loan payment amount.
+    expression: avg(payment_amount)
+    table: auto_loan_payment
+  - name: average_credit_card_payment
+    description: Average credit card payment amount.
+    expression: avg(payment_amount)
+    table: credit_card_payment
+dimensions:
+  - name: account_type
+    description: Type or category of bank account.
+    expression: account_type
+    table: account
+  - name: account_status
+    description: Operational status of the account.
+    expression: account_status
+    table: account
+  - name: customer_state
+    description: State associated with the customer.
+    expression: state
+    table: customer
+  - name: customer_city
+    description: City associated with the customer.
+    expression: city
+    table: customer
+  - name: customer_segment
+    description: Customer segment or profile grouping.
+    expression: segment
+    table: customer_profile
+  - name: product_type
+    description: Product type or banking product category.
+    expression: product_type
+    table: product_profile
+  - name: employee_department
+    description: Department or business unit of the employee.
+    expression: department
+    table: employee
+  - name: census_state
+    description: State available in census reference data.
+    expression: state
+    table: state_census
+  - name: payment_date
+    description: Payment transaction date.
+    expression: payment_date
+    table: mortgage_payment
+tables:
+  - catalog: ${SB_CATALOG}
+    schema: ${SB_SCHEMA}
+    name: account
+    description: Core account-level records for bank customers.
+    primary_key: acctkey
+    joins:
+      - target_table: customer
+        condition: account.custkey = customer.custkey
+        description: Join accounts to the owning customer.
+      - target_table: product_profile
+        condition: account.products = product_profile.product
+        description: Join accounts to product definitions when the product reference matches.
+    columns:
+      - name: custkey
+        type: varchar
+        description: Customer key for the account owner.
+      - name: acctkey
+        type: varchar
+        description: Unique account identifier.
+      - name: products
+        type: varchar
+        description: Product value associated with the account.
+      - name: cc_number
+        type: varchar
+        description: Credit card number, if present for the account.
+      - name: cc_open_date
+        type: varchar
+        description: Credit card open date stored as text.
+      - name: cc_closed_date
+        type: varchar
+        description: Credit card close date stored as text.
+      - name: cc_balance
+        type: double
+        description: Credit card balance.
+      - name: cc_status
+        type: varchar
+        description: Credit card account status.
+      - name: mortgage_id
+        type: varchar
+        description: Mortgage identifier tied to the account.
+      - name: mortgage_balance
+        type: double
+        description: Mortgage balance.
+      - name: mortgage_status
+        type: varchar
+        description: Mortgage status.
+      - name: auto_loan_id
+        type: varchar
+        description: Auto loan identifier tied to the account.
+      - name: auto_loan_balance
+        type: double
+        description: Auto loan balance.
+      - name: auto_loan_status
+        type: varchar
+        description: Auto loan status.
+  - catalog: ${SB_CATALOG}
+    schema: ${SB_SCHEMA}
+    name: customer
+    description: Core customer records.
+    primary_key: custkey
+    joins:
+      - target_table: customer_profile
+        condition: customer.custkey = customer_profile.custkey
+        description: Join customers to extended profile attributes.
+      - target_table: state_census
+        condition: customer.state = state_census.state
+        description: Join customers to state-level census attributes.
+    columns:
+      - name: custkey
+        type: varchar
+        description: Unique customer identifier.
+      - name: first_name
+        type: varchar
+        description: Customer first name, if present.
+      - name: last_name
+        type: varchar
+        description: Customer last name, if present.
+      - name: city
+        type: varchar
+        description: Customer city, if present.
+      - name: state
+        type: varchar
+        description: Customer state, if present.
+      - name: postcode
+        type: varchar
+        description: Customer postal code, if present.
+      - name: country
+        type: varchar(2)
+        description: Customer country code, if present.
+      - name: estimated_income
+        type: double
+        description: Estimated customer income.
+      - name: fico
+        type: integer
+        description: Customer FICO score.
+  - catalog: ${SB_CATALOG}
+    schema: ${SB_SCHEMA}
+    name: customer_profile
+    description: Extended customer profile and segmentation attributes.
+    primary_key: custkey
+    columns:
+      - name: custkey
+        type: varchar
+        description: Customer identifier.
+      - name: segment
+        type: varchar
+        description: Customer segment or behavioral grouping, if present.
+      - name: income_band
+        type: varchar
+        description: Income grouping, if present.
+      - name: credit_score_band
+        type: varchar
+        description: Credit score grouping, if present.
+  - catalog: ${SB_CATALOG}
+    schema: ${SB_SCHEMA}
+    name: product_profile
+    description: Banking product reference data.
+    primary_key: product
+    columns:
+      - name: product
+        type: varchar
+        description: Product identifier.
+      - name: product_type
+        type: varchar
+        description: Type of banking product, if present.
+      - name: product_name
+        type: varchar
+        description: Product display name, if present.
+      - name: product_category
+        type: varchar
+        description: Product category, if present.
+  - catalog: ${SB_CATALOG}
+    schema: ${SB_SCHEMA}
+    name: mortgage_payment
+    description: Mortgage payment transactions.
+    primary_key: payment_id
+    joins:
+      - target_table: account
+        condition: mortgage_payment.account_id = account.account_id
+        description: Join mortgage payments to accounts.
+    columns:
+      - name: payment_id
+        type: varchar
+        description: Mortgage payment identifier.
+      - name: account_id
+        type: varchar
+        description: Account associated with the mortgage payment.
+      - name: payment_date
+        type: date
+        description: Date of the mortgage payment.
+      - name: payment_amount
+        type: double
+        description: Amount of the mortgage payment.
+  - catalog: ${SB_CATALOG}
+    schema: ${SB_SCHEMA}
+    name: auto_loan_payment
+    description: Auto loan payment transactions.
+    primary_key: payment_id
+    joins:
+      - target_table: account
+        condition: auto_loan_payment.account_id = account.account_id
+        description: Join auto loan payments to accounts.
+    columns:
+      - name: payment_id
+        type: varchar
+        description: Auto loan payment identifier.
+      - name: account_id
+        type: varchar
+        description: Account associated with the auto loan payment.
+      - name: payment_date
+        type: date
+        description: Date of the auto loan payment.
+      - name: payment_amount
+        type: double
+        description: Amount of the auto loan payment.
+  - catalog: ${SB_CATALOG}
+    schema: ${SB_SCHEMA}
+    name: credit_card_payment
+    description: Credit card payment transactions.
+    primary_key: payment_id
+    joins:
+      - target_table: account
+        condition: credit_card_payment.account_id = account.account_id
+        description: Join credit card payments to accounts.
+    columns:
+      - name: payment_id
+        type: varchar
+        description: Credit card payment identifier.
+      - name: account_id
+        type: varchar
+        description: Account associated with the credit card payment.
+      - name: payment_date
+        type: date
+        description: Date of the credit card payment.
+      - name: payment_amount
+        type: double
+        description: Amount of the credit card payment.
+  - catalog: ${SB_CATALOG}
+    schema: ${SB_SCHEMA}
+    name: employee
+    description: Employee records for staffing and branch analysis.
+    primary_key: employee_id
+    columns:
+      - name: employee_id
+        type: varchar
+        description: Unique employee identifier.
+      - name: department
+        type: varchar
+        description: Employee department or business unit, if present.
+      - name: branch_id
+        type: varchar
+        description: Branch identifier, if present.
+      - name: state
+        type: varchar
+        description: Employee state, if present.
+  - catalog: ${SB_CATALOG}
+    schema: ${SB_SCHEMA}
+    name: state_census
+    description: State-level census reference data for demographic enrichment.
+    primary_key: state
+    columns:
+      - name: state
+        type: varchar
+        description: State name or abbreviation.
+      - name: population
+        type: bigint
+        description: Population for the state, if present.
+      - name: median_income
+        type: double
+        description: Median income for the state, if present.
+sample_queries:
+  - name: accounts_by_state
+    question: How many accounts do we have by state?
+    sql: |
+      SELECT c.state,
+             COUNT(a.acctkey) AS total_accounts
+      FROM ${SB_CATALOG}.${SB_SCHEMA}.account a
+      JOIN ${SB_CATALOG}.${SB_SCHEMA}.customer c
+        ON a.custkey = c.custkey
+      GROUP BY 1
+      ORDER BY total_accounts DESC
+  - name: monthly_mortgage_payment_trend
+    question: Show monthly mortgage payments over the last 12 months.
+    sql: |
+      SELECT date_trunc('month', payment_date) AS month_start,
+             SUM(payment_amount) AS total_mortgage_payments
+      FROM ${SB_CATALOG}.${SB_SCHEMA}.mortgage_payment
+      WHERE payment_date >= current_date - INTERVAL '12' month
+      GROUP BY 1
+      ORDER BY 1
+  - name: credit_card_payments_by_product_type
+    question: What is the total credit card payment amount by product type?
+    sql: |
+      SELECT p.product_type,
+             SUM(cc.payment_amount) AS total_credit_card_payments
+      FROM ${SB_CATALOG}.${SB_SCHEMA}.credit_card_payment cc
+      JOIN ${SB_CATALOG}.${SB_SCHEMA}.account a
+        ON cc.acctkey = a.acctkey
+      JOIN ${SB_CATALOG}.${SB_SCHEMA}.product_profile p
+        ON a.products = p.product
+      GROUP BY 1
+      ORDER BY total_credit_card_payments DESC
+business_rules:
+  - Prefer joining account to customer on custkey.
+  - Use state_census only as enrichment or benchmarking context, not as the primary source of customer/account facts.
+  - Treat customer_profile and product_profile as descriptive dimensions unless the question explicitly requests profile-level detail.
+  - Validate inferred columns such as product reference fields in product_profile, segment, payment_amount, and payment_date against the live schema before relying on them for production use.

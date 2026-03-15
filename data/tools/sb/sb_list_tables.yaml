@@ -1,0 +1,17 @@
+name: sb_list_tables
+description: List tables in a Starburst catalog and schema
+type: function
+module_path: app.tools.sb_tools
+function_name: sb_list_tables
+parameters:
+  - name: catalog
+    type: string
+    description: Starburst catalog name
+    required: false
+  - name: schema
+    type: string
+    description: Starburst schema name
+    required: false
+metadata:
+  category: starburst_bi
+  phase: live_discovery

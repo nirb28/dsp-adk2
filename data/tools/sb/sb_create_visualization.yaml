@@ -1,0 +1,42 @@
+name: sb_create_visualization
+description: Create a Plotly visualization for Starburst query results
+type: function
+module_path: app.tools.sb_tools
+function_name: sb_create_visualization
+parameters:
+  - name: data
+    type: array
+    description: Query result rows
+    required: true
+  - name: recommendation
+    type: object
+    description: Visualization recommendation from sb_recommend_visualization or sb_profile_results
+    required: false
+  - name: chart_type
+    type: string
+    description: Explicit chart type override
+    required: false
+  - name: x
+    type: string
+    description: X-axis or label column
+    required: false
+  - name: y
+    type: string
+    description: Y-axis or value column
+    required: false
+  - name: color
+    type: string
+    description: Optional series or color grouping column
+    required: false
+  - name: title
+    type: string
+    description: Optional chart title
+    required: false
+  - name: output_format
+    type: string
+    description: html, png, jpeg, svg, or pdf
+    required: false
+    default: html
+metadata:
+  category: starburst_bi
+  phase: visualization_generation

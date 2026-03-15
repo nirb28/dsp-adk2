@@ -1,0 +1,258 @@
+id: starburst-ai-bi-chatbot
+name: Starburst AI BI Chatbot
+description: Full multi-phase AI BI workflow for Starburst Galaxy with planning, semantic retrieval, SQL generation, validation, execution, profiling, visualization, persistence, and response formatting.
+entry_point: START
+max_iterations: 30
+timeout: 600
+streaming: false
+nodes:
+  - id: START
+    name: Start
+    type: start
+
+  - id: plan_request
+    name: Plan Request
+    type: tool
+    tool_id: sb_plan_request
+    input_mapping:
+      question: $.user_question
+      conversation_history: $.conversation_history
+    output_mapping:
+      plan: $.response
+
+  - id: semantic_context
+    name: Semantic Context
+    type: tool
+    tool_id: sb_metadata_search
+    input_mapping:
+      question: $.user_question
+      plan: $.plan
+      metadata_file: $.metadata_file
+      include_live_schema: $.include_live_schema
+      catalog: $.catalog
+      schema: $.schema
+    output_mapping:
+      semantic_context: $.response.semantic_context
+      semantic_summary: $.response.summary
+      matched_assets: $.response.matched_assets
+      live_schema: $.response.live_schema
+
+  - id: generate_sql
+    name: Generate SQL
+    type: tool
+    tool_id: sb_text_to_sql
+    input_mapping:
+      question: $.user_question
+      plan: $.plan
+      semantic_context: $.semantic_context
+      semantic_summary: $.semantic_summary
+      catalog: $.catalog
+      schema: $.schema
+    output_mapping:
+      sql_generation: $.response
+      generated_sql: $.response.sql
+
+  - id: validate_sql
+    name: Validate SQL
+    type: tool
+    tool_id: sb_validate_sql
+    input_mapping:
+      sql: $.generated_sql
+      catalog: $.catalog
+      schema: $.schema
+      limit: $.limit
+    output_mapping:
+      validation: $.response
+      validated_sql: $.response.safe_sql
+      sql_can_execute: $.response.can_execute
+      validation_errors: $.response.errors
+      validation_warnings: $.response.warnings
+
+  - id: execute_sql
+    name: Execute SQL
+    type: tool
+    tool_id: sb_execute_sql
+    input_mapping:
+      sql: $.validated_sql
+      catalog: $.catalog
+      schema: $.schema
+      limit: $.limit
+      validate_first: false
+    output_mapping:
+      query_result: $.response
+      result_rows: $.response.rows
+      result_columns: $.response.columns
+      row_count: $.response.row_count
+      query_preview: $.response.preview
+
+  - id: profile_results
+    name: Profile Results
+    type: tool
+    tool_id: sb_profile_results
+    input_mapping:
+      rows: $.result_rows
+      columns: $.result_columns
+      question: $.user_question
+    output_mapping:
+      profile: $.response
+      result_preview: $.response.preview
+      should_visualize: $.response.should_visualize
+      profiled_chart_type: $.response.chart_type
+      profiled_x: $.response.x
+      profiled_y: $.response.y
+
+  - id: recommend_visualization
+    name: Recommend Visualization
+    type: tool
+    tool_id: sb_recommend_visualization
+    input_mapping:
+      profile: $.profile
+      question: $.user_question
+    output_mapping:
+      chart_recommendation: $.response
+      should_visualize: $.response.should_visualize
+      recommended_chart_type: $.response.chart_type
+      viz_x: $.response.x
+      viz_y: $.response.y
+
+  - id: create_visualization
+    name: Create Visualization
+    type: tool
+    tool_id: sb_create_visualization
+    input_mapping:
+      data: $.result_rows
+      recommendation: $.chart_recommendation
+      title: $.user_question
+      output_format: $.output_format
+    output_mapping:
+      visualization: $.response
+      chart_output_path: $.response.output_path
+
+  - id: save_analysis
+    name: Save Analysis
+    type: tool
+    tool_id: sb_save_analysis
+    input_mapping:
+      question: $.user_question
+      sql: $.validated_sql
+      validation: $.validation
+      result: $.query_result
+      profile: $.profile
+      visualization: $.visualization
+      plan: $.plan
+      semantic_context: $.semantic_context
+    output_mapping:
+      analysis_record: $.response
+      analysis_record_path: $.response.output_path
+      analysis_id: $.response.analysis_id
+
+  - id: format_answer
+    name: Format Answer
+    type: tool
+    tool_id: sb_format_answer
+    input_mapping:
+      question: $.user_question
+      plan: $.plan
+      semantic_summary: $.semantic_summary
+      sql: $.validated_sql
+      validation: $.validation
+      rows: $.result_rows
+      profile: $.profile
+      visualization: $.visualization
+      analysis_record: $.analysis_record
+    output_mapping:
+      answer_bundle: $.response
+      final_answer: $.response.answer
+
+  - id: save_final_analysis
+    name: Save Final Analysis
+    type: tool
+    tool_id: sb_save_analysis
+    input_mapping:
+      question: $.user_question
+      sql: $.validated_sql
+      validation: $.validation
+      result: $.query_result
+      profile: $.profile
+      visualization: $.visualization
+      plan: $.plan
+      semantic_context: $.semantic_context
+      answer: $.final_answer
+      analysis_id: $.analysis_id
+    output_mapping:
+      final_analysis_record: $.response
+      final_analysis_record_path: $.response.output_path
+
+  - id: END
+    name: End
+    type: end
+
+edges:
+  - id: start_to_plan
+    source: START
+    target: plan_request
+    type: normal
+  - id: plan_to_semantic
+    source: plan_request
+    target: semantic_context
+    type: normal
+  - id: semantic_to_sql
+    source: semantic_context
+    target: generate_sql
+    type: normal
+  - id: sql_to_validation
+    source: generate_sql
+    target: validate_sql
+    type: normal
+  - id: validation_to_execute
+    source: validate_sql
+    target: execute_sql
+    type: conditional
+    condition: $.sql_can_execute
+    condition_value: true
+  - id: validation_to_format
+    source: validate_sql
+    target: format_answer
+    type: conditional
+    condition: $.sql_can_execute
+    condition_value: false
+  - id: execute_to_profile
+    source: execute_sql
+    target: profile_results
+    type: normal
+  - id: profile_to_recommend
+    source: profile_results
+    target: recommend_visualization
+    type: normal
+  - id: recommend_to_chart
+    source: recommend_visualization
+    target: create_visualization
+    type: conditional
+    condition: $.should_visualize
+    condition_value: true
+  - id: recommend_to_save
+    source: recommend_visualization
+    target: save_analysis
+    type: conditional
+    condition: $.should_visualize
+    condition_value: false
+  - id: chart_to_save
+    source: create_visualization
+    target: save_analysis
+    type: normal
+  - id: save_to_format
+    source: save_analysis
+    target: format_answer
+    type: normal
+  - id: format_to_final_save
+    source: format_answer
+    target: save_final_analysis
+    type: normal
+  - id: final_save_to_end
+    source: save_final_analysis
+    target: END
+    type: normal
+
+metadata:
+  category: starburst_bi
+  version: "1.0"

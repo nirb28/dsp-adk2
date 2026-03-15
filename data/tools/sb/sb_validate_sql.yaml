@@ -1,0 +1,25 @@
+name: sb_validate_sql
+description: Validate and harden a Starburst SQL statement for safe BI execution
+type: function
+module_path: app.tools.sb_tools
+function_name: sb_validate_sql
+parameters:
+  - name: sql
+    type: string
+    description: SQL statement to validate
+    required: true
+  - name: catalog
+    type: string
+    description: Starburst catalog override
+    required: false
+  - name: schema
+    type: string
+    description: Starburst schema override
+    required: false
+  - name: limit
+    type: number
+    description: Optional default row limit if the query does not specify one
+    required: false
+metadata:
+  category: starburst_bi
+  phase: validation

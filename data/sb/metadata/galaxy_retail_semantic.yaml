@@ -1,0 +1,139 @@
+name: galaxy_retail_semantic
+version: "1.0"
+description: Semantic model for a retail and subscription analytics domain that can be adapted to Starburst Galaxy catalogs and schemas.
+default_catalog: ${SB_CATALOG}
+default_schema: ${SB_SCHEMA}
+metrics:
+  - name: total_revenue
+    description: Total booked revenue for completed orders.
+    expression: sum(net_revenue)
+    table: fact_orders
+  - name: total_orders
+    description: Count of completed orders.
+    expression: count(order_id)
+    table: fact_orders
+  - name: average_order_value
+    description: Average order value over completed orders.
+    expression: avg(net_revenue)
+    table: fact_orders
+  - name: active_customers
+    description: Distinct customers with at least one completed order.
+    expression: count(distinct customer_id)
+    table: fact_orders
+dimensions:
+  - name: order_date
+    description: Business date of the order.
+    expression: order_date
+    table: fact_orders
+  - name: customer_segment
+    description: Commercial segment assigned to the customer.
+    expression: customer_segment
+    table: dim_customers
+  - name: region
+    description: Geographic sales region.
+    expression: region
+    table: dim_customers
+  - name: product_category
+    description: Category of the sold product.
+    expression: product_category
+    table: dim_products
+tables:
+  - catalog: ${SB_CATALOG}
+    schema: ${SB_SCHEMA}
+    name: fact_orders
+    description: Grain is one row per completed or fulfilled order.
+    primary_key: order_id
+    joins:
+      - target_table: dim_customers
+        condition: fact_orders.customer_id = dim_customers.customer_id
+        description: Join orders to customer attributes.
+      - target_table: dim_products
+        condition: fact_orders.product_id = dim_products.product_id
+        description: Join orders to product attributes.
+    columns:
+      - name: order_id
+        type: varchar
+        description: Unique order identifier.
+      - name: customer_id
+        type: varchar
+        description: Customer identifier.
+      - name: product_id
+        type: varchar
+        description: Product identifier.
+      - name: order_date
+        type: date
+        description: Date of order booking.
+      - name: status
+        type: varchar
+        description: Operational order status. Use completed or fulfilled for revenue reporting.
+      - name: net_revenue
+        type: double
+        description: Net realized revenue in reporting currency.
+      - name: quantity
+        type: integer
+        description: Quantity sold on the order.
+  - catalog: ${SB_CATALOG}
+    schema: ${SB_SCHEMA}
+    name: dim_customers
+    description: Customer dimension with segment and geography.
+    primary_key: customer_id
+    columns:
+      - name: customer_id
+        type: varchar
+        description: Unique customer identifier.
+      - name: customer_name
+        type: varchar
+        description: Display name of the customer.
+      - name: customer_segment
+        type: varchar
+        description: Segment such as enterprise, smb, or consumer.
+      - name: region
+        type: varchar
+        description: Sales region.
+      - name: country
+        type: varchar
+        description: Country associated with the customer.
+  - catalog: ${SB_CATALOG}
+    schema: ${SB_SCHEMA}
+    name: dim_products
+    description: Product dimension with categories.
+    primary_key: product_id
+    columns:
+      - name: product_id
+        type: varchar
+        description: Product identifier.
+      - name: product_name
+        type: varchar
+        description: Human-readable product name.
+      - name: product_category
+        type: varchar
+        description: Product category.
+      - name: product_family
+        type: varchar
+        description: Product family or bundle.
+sample_queries:
+  - name: revenue_by_region
+    question: What is revenue by region this quarter?
+    sql: |
+      SELECT c.region, SUM(o.net_revenue) AS total_revenue
+      FROM ${SB_CATALOG}.${SB_SCHEMA}.fact_orders o
+      JOIN ${SB_CATALOG}.${SB_SCHEMA}.dim_customers c
+        ON o.customer_id = c.customer_id
+      WHERE o.status IN ('completed', 'fulfilled')
+        AND date_trunc('quarter', o.order_date) = date_trunc('quarter', current_date)
+      GROUP BY 1
+      ORDER BY total_revenue DESC
+  - name: monthly_revenue_trend
+    question: Show monthly revenue trend for the last 12 months.
+    sql: |
+      SELECT date_trunc('month', order_date) AS month_start,
+             SUM(net_revenue) AS total_revenue
+      FROM ${SB_CATALOG}.${SB_SCHEMA}.fact_orders
+      WHERE status IN ('completed', 'fulfilled')
+        AND order_date >= current_date - INTERVAL '12' month
+      GROUP BY 1
+      ORDER BY 1
+business_rules:
+  - Revenue analysis should filter to status in ('completed', 'fulfilled') unless the question explicitly asks otherwise.
+  - Join customer attributes through dim_customers and product attributes through dim_products.
+  - Prefer date_trunc for time grain calculations in Starburst.

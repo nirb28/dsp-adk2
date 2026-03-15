@@ -1,0 +1,49 @@
+name: sb_save_analysis
+description: Save a BI analysis bundle including SQL, result preview, chart, and final answer
+type: function
+module_path: app.tools.sb_tools
+function_name: sb_save_analysis
+parameters:
+  - name: question
+    type: string
+    description: Original BI question
+    required: true
+  - name: sql
+    type: string
+    description: SQL that was used
+    required: false
+  - name: validation
+    type: object
+    description: SQL validation result
+    required: false
+  - name: result
+    type: object
+    description: Query execution result
+    required: false
+  - name: profile
+    type: object
+    description: Result profile
+    required: false
+  - name: visualization
+    type: object
+    description: Visualization output metadata
+    required: false
+  - name: plan
+    type: object
+    description: Structured analysis plan
+    required: false
+  - name: semantic_context
+    type: object
+    description: Semantic metadata used for generation
+    required: false
+  - name: answer
+    type: string
+    description: Final answer text
+    required: false
+  - name: analysis_id
+    type: string
+    description: Optional identifier to update an existing saved analysis record
+    required: false
+metadata:
+  category: starburst_bi
+  phase: persistence

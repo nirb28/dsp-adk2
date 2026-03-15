@@ -1,0 +1,45 @@
+name: sb_format_answer
+description: Produce a polished BI response with summary, chart reference, SQL, and assumptions
+type: function
+module_path: app.tools.sb_tools
+function_name: sb_format_answer
+parameters:
+  - name: question
+    type: string
+    description: Original BI question
+    required: true
+  - name: plan
+    type: object
+    description: Structured analysis plan
+    required: false
+  - name: semantic_summary
+    type: string
+    description: Semantic summary used for SQL generation
+    required: false
+  - name: sql
+    type: string
+    description: SQL query that was executed
+    required: false
+  - name: validation
+    type: object
+    description: SQL validation result
+    required: false
+  - name: rows
+    type: array
+    description: Query result rows
+    required: false
+  - name: profile
+    type: object
+    description: Result profile and recommendation
+    required: false
+  - name: visualization
+    type: object
+    description: Visualization metadata
+    required: false
+  - name: analysis_record
+    type: object
+    description: Saved analysis metadata
+    required: false
+metadata:
+  category: starburst_bi
+  phase: response_generation

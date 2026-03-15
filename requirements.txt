@@ -45,6 +45,7 @@ langfuse>=3.0.0
 plotly>=5.18.0
 pandas>=2.0.0
 kaleido>=0.2.1
+trino>=0.336.0
 
 # Knowledge Graph (FOSS)
 networkx>=3.2

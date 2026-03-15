@@ -1,0 +1,239 @@
+{
+  "analysis_id": "show-monthly-revenue-trend-for-the-last-12-months-by-region-and-create-a-chart-7ad6723f",
+  "saved_at": "2026-03-14T10:18:41.993674Z",
+  "question": "Show monthly revenue trend for the last 12 months by region and create a chart.",
+  "sql": "SELECT \n  c.region,\n  date_trunc('month', o.order_date) AS month_start,\n  SUM(o.net_revenue) AS total_revenue\nFROM sample.burstbank.fact_orders o\nJOIN sample.burstbank.dim_customers c\n  ON o.customer_id = c.customer_id\nWHERE o.status IN ('completed', 'fulfilled')\n  AND o.order_date >= current_date - INTERVAL '12' month\nGROUP BY c.region, month_start\nORDER BY month_start, c.region\nLIMIT 200",
+  "result": null,
+  "validation": {
+    "sql": "SELECT \n  c.region,\n  date_trunc('month', o.order_date) AS month_start,\n  SUM(o.net_revenue) AS total_revenue\nFROM sample.burstbank.fact_orders o\nJOIN sample.burstbank.dim_customers c\n  ON o.customer_id = c.customer_id\nWHERE o.status IN ('completed', 'fulfilled')\n  AND o.order_date >= current_date - INTERVAL '12' month\nGROUP BY c.region, month_start\nORDER BY month_start, c.region",
+    "safe_sql": "SELECT \n  c.region,\n  date_trunc('month', o.order_date) AS month_start,\n  SUM(o.net_revenue) AS total_revenue\nFROM sample.burstbank.fact_orders o\nJOIN sample.burstbank.dim_customers c\n  ON o.customer_id = c.customer_id\nWHERE o.status IN ('completed', 'fulfilled')\n  AND o.order_date >= current_date - INTERVAL '12' month\nGROUP BY c.region, month_start\nORDER BY month_start, c.region\nLIMIT 200",
+    "catalog": null,
+    "schema": null,
+    "can_execute": false,
+    "errors": [
+      "Catalog 'sample' is not allowed",
+      "Schema 'burstbank' is not allowed",
+      "Catalog 'sample' is not allowed",
+      "Schema 'burstbank' is not allowed"
+    ],
+    "warnings": [
+      "Applied LIMIT 200 for safety"
+    ],
+    "applied_limit": 200,
+    "allowed_catalogs": [
+      "your_catalog"
+    ],
+    "allowed_schemas": [
+      "your_schema"
+    ],
+    "denied_columns": []
+  },
+  "profile": null,
+  "visualization": null,
+  "plan": {
+    "intent": "analysis",
+    "metric": null,
+    "dimensions": [],
+    "filters": [],
+    "time_grain": null,
+    "comparison": null,
+    "requested_visualization": null,
+    "needs_visualization": true,
+    "answer_format": "summary_with_sql",
+    "ambiguities": [],
+    "raw_response": "```json\n{\n  \"intent\": \"display trend\",\n  \"metric\": \"revenue\",\n  \"dimensions\": [\"region\", \"month\"],\n  \"filters\": {\n    \"date\": {\n      \"gte\": \"now-12M\"\n    }\n  },\n  \"time_grain\": \"month\",\n  \"comparison\": null,\n  \"requested_visualization\": \"line chart\",\n  \"needs_visualization\": true,\n  \"answer_format\": \"chart\",\n  \"ambiguities\": [\n    \"Which granularity of region (e.g., country, state, city)?\",\n    \"Do you want a year‑over‑year comparison or just the latest 12 months?\",\n    \"Is revenue for all products or a specific subset?\"\n  ]\n}\n```"
+  },
+  "semantic_context": {
+    "tables": [
+      {
+        "catalog": "${SB_CATALOG}",
+        "schema": "${SB_SCHEMA}",
+        "name": "fact_orders",
+        "description": "Grain is one row per completed or fulfilled order.",
+        "primary_key": "order_id",
+        "joins": [
+          {
+            "target_table": "dim_customers",
+            "condition": "fact_orders.customer_id = dim_customers.customer_id",
+            "description": "Join orders to customer attributes."
+          },
+          {
+            "target_table": "dim_products",
+            "condition": "fact_orders.product_id = dim_products.product_id",
+            "description": "Join orders to product attributes."
+          }
+        ],
+        "columns": [
+          {
+            "name": "order_id",
+            "type": "varchar",
+            "description": "Unique order identifier."
+          },
+          {
+            "name": "customer_id",
+            "type": "varchar",
+            "description": "Customer identifier."
+          },
+          {
+            "name": "product_id",
+            "type": "varchar",
+            "description": "Product identifier."
+          },
+          {
+            "name": "order_date",
+            "type": "date",
+            "description": "Date of order booking."
+          },
+          {
+            "name": "status",
+            "type": "varchar",
+            "description": "Operational order status. Use completed or fulfilled for revenue reporting."
+          },
+          {
+            "name": "net_revenue",
+            "type": "double",
+            "description": "Net realized revenue in reporting currency."
+          },
+          {
+            "name": "quantity",
+            "type": "integer",
+            "description": "Quantity sold on the order."
+          }
+        ]
+      },
+      {
+        "catalog": "${SB_CATALOG}",
+        "schema": "${SB_SCHEMA}",
+        "name": "dim_customers",
+        "description": "Customer dimension with segment and geography.",
+        "primary_key": "customer_id",
+        "columns": [
+          {
+            "name": "customer_id",
+            "type": "varchar",
+            "description": "Unique customer identifier."
+          },
+          {
+            "name": "customer_name",
+            "type": "varchar",
+            "description": "Display name of the customer."
+          },
+          {
+            "name": "customer_segment",
+            "type": "varchar",
+            "description": "Segment such as enterprise, smb, or consumer."
+          },
+          {
+            "name": "region",
+            "type": "varchar",
+            "description": "Sales region."
+          },
+          {
+            "name": "country",
+            "type": "varchar",
+            "description": "Country associated with the customer."
+          }
+        ]
+      },
+      {
+        "catalog": "${SB_CATALOG}",
+        "schema": "${SB_SCHEMA}",
+        "name": "dim_products",
+        "description": "Product dimension with categories.",
+        "primary_key": "product_id",
+        "columns": [
+          {
+            "name": "product_id",
+            "type": "varchar",
+            "description": "Product identifier."
+          },
+          {
+            "name": "product_name",
+            "type": "varchar",
+            "description": "Human-readable product name."
+          },
+          {
+            "name": "product_category",
+            "type": "varchar",
+            "description": "Product category."
+          },
+          {
+            "name": "product_family",
+            "type": "varchar",
+            "description": "Product family or bundle."
+          }
+        ]
+      }
+    ],
+    "metrics": [
+      {
+        "name": "total_revenue",
+        "description": "Total booked revenue for completed orders.",
+        "expression": "sum(net_revenue)",
+        "table": "fact_orders"
+      },
+      {
+        "name": "total_orders",
+        "description": "Count of completed orders.",
+        "expression": "count(order_id)",
+        "table": "fact_orders"
+      },
+      {
+        "name": "average_order_value",
+        "description": "Average order value over completed orders.",
+        "expression": "avg(net_revenue)",
+        "table": "fact_orders"
+      },
+      {
+        "name": "active_customers",
+        "description": "Distinct customers with at least one completed order.",
+        "expression": "count(distinct customer_id)",
+        "table": "fact_orders"
+      }
+    ],
+    "dimensions": [
+      {
+        "name": "order_date",
+        "description": "Business date of the order.",
+        "expression": "order_date",
+        "table": "fact_orders"
+      },
+      {
+        "name": "customer_segment",
+        "description": "Commercial segment assigned to the customer.",
+        "expression": "customer_segment",
+        "table": "dim_customers"
+      },
+      {
+        "name": "region",
+        "description": "Geographic sales region.",
+        "expression": "region",
+        "table": "dim_customers"
+      },
+      {
+        "name": "product_category",
+        "description": "Category of the sold product.",
+        "expression": "product_category",
+        "table": "dim_products"
+      }
+    ],
+    "sample_queries": [
+      {
+        "name": "revenue_by_region",
+        "question": "What is revenue by region this quarter?",
+        "sql": "SELECT c.region, SUM(o.net_revenue) AS total_revenue\nFROM ${SB_CATALOG}.${SB_SCHEMA}.fact_orders o\nJOIN ${SB_CATALOG}.${SB_SCHEMA}.dim_customers c\n  ON o.customer_id = c.customer_id\nWHERE o.status IN ('completed', 'fulfilled')\n  AND date_trunc('quarter', o.order_date) = date_trunc('quarter', current_date)\nGROUP BY 1\nORDER BY total_revenue DESC\n"
+      },
+      {
+        "name": "monthly_revenue_trend",
+        "question": "Show monthly revenue trend for the last 12 months.",
+        "sql": "SELECT date_trunc('month', order_date) AS month_start,\n       SUM(net_revenue) AS total_revenue\nFROM ${SB_CATALOG}.${SB_SCHEMA}.fact_orders\nWHERE status IN ('completed', 'fulfilled')\n  AND order_date >= current_date - INTERVAL '12' month\nGROUP BY 1\nORDER BY 1\n"
+      }
+    ],
+    "business_rules": [
+      "Revenue analysis should filter to status in ('completed', 'fulfilled') unless the question explicitly asks otherwise.",
+      "Join customer attributes through dim_customers and product attributes through dim_products.",
+      "Prefer date_trunc for time grain calculations in Starburst."
+    ]
+  },
+  "answer": "## Summary  \nThe query returns the **monthly total revenue** for the last 12 calendar months, broken down by **region** (as stored in `dim_customers`). It aggregates only orders with status `completed` or `fulfilled`, ensuring revenue reflects actual sales. The results can be plotted as a line chart with time on the x‑axis and revenue on the y‑axis, one line per region.\n\n---\n\n## Visualization  \n* **Chart type**: Multi‑line line chart  \n* **X‑axis**: Month (first day of each month)  \n* **Y‑axis**: Total revenue (sum of `net_revenue`)  \n* **Lines**: One per `region`  \n* **Time window**: Exactly the last 12 months (inclusive of the current month if data exists)  \n* **Optional**: Add a legend to distinguish regions; tooltips can show month, region, and revenue.\n\n---\n\n## SQL  \n```sql\n-- Replace your_catalog.your_schema with your actual Starburst catalog & schema\nSELECT\n    c.region,\n    DATE_TRUNC('month', o.order_date) AS month_start,\n    SUM(o.net_revenue) AS total_revenue\nFROM your_catalog.your_schema.fact_orders  o\nJOIN your_catalog.your_schema.dim_customers c\n  ON o.customer_id = c.customer_id\nWHERE o.status IN ('completed', 'fulfilled')\n  AND o.order_date >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '12' MONTH\nGROUP BY c.region, month_start\nORDER BY month_start, c.region;\n```\n\n* **Filters**  \n  * `status IN ('completed', 'fulfilled')` – ensures only realized revenue is counted.  \n  * `order_date >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '12' MONTH` – fetches data for the last 12 full months (including the current month if data is available).\n\n* **Grain**  \n  * **Time grain**: month (`DATE_TRUNC('month', order_date)`).  \n  * **Dimension grain**: `region` from `dim_customers`.\n\n* **Limit**  \n  * No explicit `LIMIT` is needed for the full 12‑month trend, but you may add one for safety if the dataset is large.\n\n---\n\n## Assumptions & Caveats  \n\n| Item | Detail |\n|------|--------|\n| **Region granularity** | Assumes `region` is a top‑level geography (e.g., country or state). If you need a more granular level (city, ZIP), replace `c.region` with the appropriate column. |\n| **Time zone** | `order_date` is stored in UTC. If your business uses a different local time zone, adjust the truncation accordingly. |\n| **Currency** | `net_revenue` is in the default currency of the store; no conversion applied. |\n| **Data freshness** | The query uses `CURRENT_DATE`; if the database clock is delayed, the latest month may be incomplete. |\n| **Missing months** | If a region has no orders in a month, that month‑region combination will not appear in the result. Consider a left‑join with a calendar table to insert zeroes if required. |\n| **Catalog/Schemas** | Replace `your_catalog.your_schema` with your actual Starburst catalog and schema names. |\n| **Execution** | The query is syntactically correct but cannot be executed in this environment due to catalog restrictions. |\n\n---"
+}
