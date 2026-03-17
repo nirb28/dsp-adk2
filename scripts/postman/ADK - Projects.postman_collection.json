@@ -1384,6 +1384,146 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Starburst",
+      "item": [
+        {
+          "name": "graph",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"graph_id\": \"starburst-ai-bi-chatbot\",\r\n    \"input\": {\r\n        \"user_question\": \"How many accounts do we have by state?\",\r\n        \"conversation_history\": \"\",\r\n        \"metadata_file\": \"burstbank_semantic.yaml\",\r\n        \"include_live_schema\": false,\r\n        \"catalog\": \"sample\",\r\n        \"schema\": \"burstbank\",\r\n        \"limit\": 200,\r\n        \"output_format\": \"html\"\r\n    },\r\n    \"context\": {}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{adk2-baseUrl}}/execute/graph",
+              "host": [
+                "{{adk2-baseUrl}}"
+              ],
+              "path": [
+                "execute",
+                "graph"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Catalogs",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n        \"tool_name\": \"sb_list_catalogs\",\r\n        \"parameters\": {}\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{adk2-baseUrl}}/execute/tool",
+              "host": [
+                "{{adk2-baseUrl}}"
+              ],
+              "path": [
+                "execute",
+                "tool"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Schemas",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n        \"tool_name\": \"sb_list_schemas\",\r\n        \"catalog\": \"ds_covid\",\r\n        \"parameters\": {}\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{adk2-baseUrl}}/execute/tool",
+              "host": [
+                "{{adk2-baseUrl}}"
+              ],
+              "path": [
+                "execute",
+                "tool"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Tables",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n        \"tool_name\": \"sb_list_tables\",\r\n        \"catalog\": \"sample\",\r\n        \"schema\": \"burstbank\",\r\n        \"parameters\": {}\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{adk2-baseUrl}}/execute/tool",
+              "host": [
+                "{{adk2-baseUrl}}"
+              ],
+              "path": [
+                "execute",
+                "tool"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Describe Table",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"tool_name\": \"sb_describe_table\",\r\n  \"parameters\": {\r\n    \"table_name\": \"customer\",\r\n    \"catalog\": \"sample\",\r\n    \"schema\": \"burstbank\"\r\n  }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{adk2-baseUrl}}/execute/tool",
+              "host": [
+                "{{adk2-baseUrl}}"
+              ],
+              "path": [
+                "execute",
+                "tool"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
