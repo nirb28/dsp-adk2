@@ -1,0 +1,240 @@
+name: system_runtime_semantic
+version: "1.0"
+description: Semantic model for Starburst system.runtime operational metadata, covering cluster nodes and query tasks.
+default_catalog: system
+default_schema: runtime
+metrics:
+  - name: total_nodes
+    description: Total number of runtime nodes.
+    expression: count(node_id)
+    table: nodes
+  - name: active_nodes
+    description: Number of nodes currently in active state.
+    expression: count_if(state = 'active')
+    table: nodes
+  - name: coordinator_nodes
+    description: Number of coordinator nodes.
+    expression: count_if(coordinator = true)
+    table: nodes
+  - name: total_tasks
+    description: Total number of runtime tasks.
+    expression: count(task_id)
+    table: tasks
+  - name: running_tasks
+    description: Number of tasks currently running.
+    expression: count_if(state = 'RUNNING')
+    table: tasks
+  - name: completed_tasks
+    description: Number of tasks completed successfully.
+    expression: count_if(state = 'FINISHED')
+    table: tasks
+  - name: failed_tasks
+    description: Number of tasks in failed state.
+    expression: count_if(state = 'FAILED')
+    table: tasks
+  - name: queued_splits_total
+    description: Total queued splits across tasks.
+    expression: sum(queued_splits)
+    table: tasks
+  - name: running_splits_total
+    description: Total running splits across tasks.
+    expression: sum(running_splits)
+    table: tasks
+  - name: completed_splits_total
+    description: Total completed splits across tasks.
+    expression: sum(completed_splits)
+    table: tasks
+  - name: total_cpu_time_ms
+    description: Total split CPU time in milliseconds.
+    expression: sum(split_cpu_time_ms)
+    table: tasks
+  - name: total_blocked_time_ms
+    description: Total split blocked time in milliseconds.
+    expression: sum(split_blocked_time_ms)
+    table: tasks
+  - name: total_raw_input_bytes
+    description: Total raw input bytes scanned by tasks.
+    expression: sum(raw_input_bytes)
+    table: tasks
+  - name: total_output_rows
+    description: Total output rows produced by tasks.
+    expression: sum(output_rows)
+    table: tasks
+dimensions:
+  - name: task_state
+    description: Runtime state of a task.
+    expression: state
+    table: tasks
+  - name: node_state
+    description: Runtime state of a node.
+    expression: state
+    table: nodes
+  - name: query_id
+    description: Query identifier associated with a task.
+    expression: query_id
+    table: tasks
+  - name: stage_id
+    description: Stage identifier associated with a task.
+    expression: stage_id
+    table: tasks
+  - name: node_id
+    description: Node identifier shared between tasks and nodes.
+    expression: node_id
+    table: tasks
+  - name: coordinator
+    description: Indicates whether node is coordinator.
+    expression: coordinator
+    table: nodes
+  - name: created_time
+    description: Task creation timestamp.
+    expression: created
+    table: tasks
+  - name: start_time
+    description: Task start timestamp.
+    expression: start
+    table: tasks
+  - name: end_time
+    description: Task end timestamp.
+    expression: end
+    table: tasks
+tables:
+  - catalog: system
+    schema: runtime
+    name: nodes
+    description: Runtime node-level status and endpoint information.
+    primary_key: node_id
+    columns:
+      - name: node_id
+        type: varchar
+        description: Unique runtime node identifier.
+      - name: http_uri
+        type: varchar
+        description: HTTP URI for node communication.
+      - name: node_version
+        type: varchar
+        description: Node software version.
+      - name: coordinator
+        type: boolean
+        description: True if node acts as coordinator.
+      - name: state
+        type: varchar
+        description: Current node state.
+  - catalog: system
+    schema: runtime
+    name: tasks
+    description: Runtime task-level execution metrics and timings.
+    primary_key: task_id
+    joins:
+      - target_table: nodes
+        condition: tasks.node_id = nodes.node_id
+        description: Join tasks to node details using node_id.
+    columns:
+      - name: node_id
+        type: varchar
+        description: Runtime node identifier for the task.
+      - name: task_id
+        type: varchar
+        description: Unique task identifier.
+      - name: stage_id
+        type: varchar
+        description: Stage identifier.
+      - name: query_id
+        type: varchar
+        description: Query identifier.
+      - name: state
+        type: varchar
+        description: Current task state.
+      - name: splits
+        type: bigint
+        description: Total splits for task.
+      - name: queued_splits
+        type: bigint
+        description: Queued splits for task.
+      - name: running_splits
+        type: bigint
+        description: Running splits for task.
+      - name: completed_splits
+        type: bigint
+        description: Completed splits for task.
+      - name: split_scheduled_time_ms
+        type: bigint
+        description: Split scheduled time in milliseconds.
+      - name: split_cpu_time_ms
+        type: bigint
+        description: Split CPU time in milliseconds.
+      - name: split_blocked_time_ms
+        type: bigint
+        description: Split blocked time in milliseconds.
+      - name: raw_input_bytes
+        type: bigint
+        description: Raw input bytes read.
+      - name: raw_input_rows
+        type: bigint
+        description: Raw input rows read.
+      - name: processed_input_bytes
+        type: bigint
+        description: Processed input bytes.
+      - name: processed_input_rows
+        type: bigint
+        description: Processed input rows.
+      - name: output_bytes
+        type: bigint
+        description: Output bytes produced.
+      - name: output_rows
+        type: bigint
+        description: Output rows produced.
+      - name: physical_input_bytes
+        type: bigint
+        description: Physical input bytes.
+      - name: physical_written_bytes
+        type: bigint
+        description: Physical bytes written.
+      - name: created
+        type: timestamp(3) with time zone
+        description: Task creation timestamp.
+      - name: start
+        type: timestamp(3) with time zone
+        description: Task start timestamp.
+      - name: last_heartbeat
+        type: timestamp(3) with time zone
+        description: Last heartbeat timestamp.
+      - name: end
+        type: timestamp(3) with time zone
+        description: Task end timestamp.
+sample_queries:
+  - name: tasks_by_state
+    question: How many tasks are in each state right now?
+    sql: |
+      SELECT state,
+             COUNT(task_id) AS total_tasks
+      FROM "system"."runtime"."tasks"
+      GROUP BY 1
+      ORDER BY total_tasks DESC
+  - name: top_queries_by_output_rows
+    question: Which queries produced the most output rows?
+    sql: |
+      SELECT query_id,
+             SUM(output_rows) AS total_output_rows
+      FROM "system"."runtime"."tasks"
+      GROUP BY 1
+      ORDER BY total_output_rows DESC
+      LIMIT 20
+  - name: task_load_by_node
+    question: What is the task load by node and node state?
+    sql: |
+      SELECT n.node_id,
+             n.state AS node_state,
+             n.coordinator,
+             COUNT(t.task_id) AS total_tasks,
+             SUM(t.running_splits) AS running_splits,
+             SUM(t.queued_splits) AS queued_splits
+      FROM "system"."runtime"."nodes" n
+      LEFT JOIN "system"."runtime"."tasks" t
+        ON n.node_id = t.node_id
+      GROUP BY 1, 2, 3
+      ORDER BY total_tasks DESC
+business_rules:
+  - Use system.runtime data as operational telemetry rather than business transaction facts.
+  - Prefer joining tasks to nodes on node_id for node-level diagnostics.
+  - Treat state values as engine-provided enums and avoid hardcoding beyond common values like RUNNING, FINISHED, and FAILED.
+  - When trend analysis is requested, use created/start/end timestamps from tasks and include explicit time windows.
