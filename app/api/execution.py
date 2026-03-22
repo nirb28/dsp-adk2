@@ -59,6 +59,12 @@ async def get_execution_artifact(artifact_type: str, file_name: str):
         media_type = "text/html"
     elif artifact_path.suffix.lower() == ".json":
         media_type = "application/json"
+    if artifact_path.suffix.lower() == ".html":
+        return FileResponse(
+            artifact_path,
+            media_type=media_type,
+            headers={"Content-Disposition": f'inline; filename="{artifact_path.name}"'},
+        )
     return FileResponse(artifact_path, media_type=media_type, filename=artifact_path.name)
 
 

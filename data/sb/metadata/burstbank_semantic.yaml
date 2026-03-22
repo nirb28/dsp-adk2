@@ -226,8 +226,8 @@ tables:
         type: varchar
         description: Account associated with the mortgage payment.
       - name: payment_date
-        type: date
-        description: Date of the mortgage payment.
+        type: varchar
+        description: Date of the mortgage payment stored as text; cast with try_cast(payment_date as date) for date comparisons or date_trunc.
       - name: payment_amount
         type: double
         description: Amount of the mortgage payment.
@@ -248,8 +248,8 @@ tables:
         type: varchar
         description: Account associated with the auto loan payment.
       - name: payment_date
-        type: date
-        description: Date of the auto loan payment.
+        type: varchar
+        description: Date of the auto loan payment stored as text; cast with try_cast(payment_date as date) for date comparisons or date_trunc.
       - name: payment_amount
         type: double
         description: Amount of the auto loan payment.
@@ -270,8 +270,8 @@ tables:
         type: varchar
         description: Account associated with the credit card payment.
       - name: payment_date
-        type: date
-        description: Date of the credit card payment.
+        type: varchar
+        description: Date of the credit card payment stored as text; cast with try_cast(payment_date as date) for date comparisons or date_trunc.
       - name: payment_amount
         type: double
         description: Amount of the credit card payment.
@@ -345,3 +345,4 @@ business_rules:
   - Use state_census only as enrichment or benchmarking context, not as the primary source of customer/account facts.
   - Treat customer_profile and product_profile as descriptive dimensions unless the question explicitly requests profile-level detail.
   - Validate inferred columns such as product reference fields in product_profile, segment, payment_amount, and payment_date against the live schema before relying on them for production use.
+  - Columns account.cc_open_date and account.cc_closed_date are stored as varchar text; use try_cast(column as date) before any comparison to current_date/date literals, date_trunc, or interval arithmetic.
