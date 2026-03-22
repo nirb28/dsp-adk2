@@ -140,6 +140,15 @@ class GraphExecutionResponse(BaseModel):
     execution_time: float
 
 
+class GraphExecutionNormalizedResponse(BaseModel):
+    graph_id: str
+    success: bool
+    normalized: Dict[str, Any] = Field(default_factory=dict)
+    raw: GraphExecutionResponse
+    error: Optional[str] = None
+    execution_time: float
+
+
 class ToolExecutionRequest(BaseModel):
     tool_name: str
     parameters: Dict[str, Any] = Field(default_factory=dict)
