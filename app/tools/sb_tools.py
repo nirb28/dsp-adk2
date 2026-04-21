@@ -66,6 +66,32 @@ def sb_create_visualization(data: Optional[Any] = None, recommendation: Optional
     return StarburstBIService.create_visualization(data=data, recommendation=recommendation, **kwargs)
 
 
+async def sb_publish_superset_dashboard(
+    question: str,
+    sql: str,
+    recommendation: Optional[Any] = None,
+    profile: Optional[Any] = None,
+    **kwargs: Any,
+) -> Dict[str, Any]:
+    return await StarburstBIService.publish_superset_dashboard(
+        question=question,
+        sql=sql,
+        recommendation=recommendation,
+        profile=profile,
+        **kwargs,
+    )
+
+
+async def sb_serve_superset_dashboard(
+    dashboard_id: int,
+    **kwargs: Any,
+) -> Dict[str, Any]:
+    return await StarburstBIService.serve_superset_dashboard(
+        dashboard_id=dashboard_id,
+        **kwargs,
+    )
+
+
 def sb_save_analysis(question: str, **kwargs: Any) -> Dict[str, Any]:
     return StarburstBIService.save_analysis(question=question, **kwargs)
 

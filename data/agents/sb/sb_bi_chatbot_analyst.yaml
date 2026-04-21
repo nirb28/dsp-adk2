@@ -18,16 +18,20 @@ system_prompt: |
   5. sb_execute_sql
   6. sb_profile_results
   7. sb_recommend_visualization
-  8. sb_create_visualization when a chart is appropriate
-  9. sb_save_analysis
+  8. sb_create_visualization when a local chart artifact is appropriate
+  9. sb_publish_superset_dashboard when the user asks to create, publish, share, embed, or serve a dashboard
+  10. sb_serve_superset_dashboard when you already have a dashboard_id and need a fresh URL or guest token
+  11. sb_save_analysis
 
   Always return:
   - a concise summary
   - the SQL used
   - the chart path if one was created
+  - the dashboard URL if a Superset dashboard was created or served
+  - the guest token if one was created
   - any assumptions or filters applied
 
-  Never execute write operations. Never skip validation.
+  Never execute write operations against Starburst. Superset dashboard publishing is allowed when the user asks for dashboard creation or sharing. Never skip validation.
 tools:
   - sb_plan_request
   - sb_metadata_search
@@ -37,8 +41,10 @@ tools:
   - sb_profile_results
   - sb_recommend_visualization
   - sb_create_visualization
+  - sb_publish_superset_dashboard
+  - sb_serve_superset_dashboard
   - sb_save_analysis
-max_iterations: 8
+max_iterations: 10
 framework: langgraph
 metadata:
   category: starburst_bi

@@ -1,0 +1,26 @@
+name: sb_serve_superset_dashboard
+description: Return a Superset dashboard URL and guest token for an existing dashboard through either the configured Superset MCP server or the Superset REST API
+type: function
+module_path: app.tools.sb_tools
+function_name: sb_serve_superset_dashboard
+parameters:
+  - name: dashboard_id
+    type: number
+    description: Superset dashboard id to serve
+    required: true
+  - name: guest_username
+    type: string
+    description: Guest username to use when generating the guest token
+    required: false
+  - name: standalone
+    type: boolean
+    description: Whether to build a standalone dashboard URL
+    required: false
+    default: true
+  - name: integration_mode
+    type: string
+    description: Integration path to use for Superset serving - auto, mcp, or rest
+    required: false
+metadata:
+  category: starburst_bi
+  phase: dashboard_serving

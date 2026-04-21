@@ -1,0 +1,66 @@
+name: sb_publish_superset_dashboard
+description: Publish a Superset dashboard from Starburst SQL through either the configured Superset MCP server or the Superset REST API
+type: function
+module_path: app.tools.sb_tools
+function_name: sb_publish_superset_dashboard
+parameters:
+  - name: question
+    type: string
+    description: Original user question used for dashboard naming and context
+    required: true
+  - name: sql
+    type: string
+    description: Validated SQL query to publish as a Superset virtual dataset and dashboard
+    required: true
+  - name: recommendation
+    type: object
+    description: Visualization recommendation from sb_recommend_visualization or sb_profile_results
+    required: false
+  - name: profile
+    type: object
+    description: Result profile from sb_profile_results
+    required: false
+  - name: title
+    type: string
+    description: Optional dashboard title override
+    required: false
+  - name: chart_title
+    type: string
+    description: Optional chart title override
+    required: false
+  - name: chart_type
+    type: string
+    description: Optional chart type override such as line, bar, pie, scatter, or table
+    required: false
+  - name: x
+    type: string
+    description: Optional x-axis or category column override
+    required: false
+  - name: y
+    type: string
+    description: Optional y-axis or metric column override
+    required: false
+  - name: database_name
+    type: string
+    description: Superset database name that points to Starburst
+    required: false
+  - name: schema_name
+    type: string
+    description: Schema name for the Superset virtual dataset
+    required: false
+  - name: row_limit
+    type: number
+    description: Row limit hint for Superset chart queries
+    required: false
+    default: 1000
+  - name: guest_username
+    type: string
+    description: Guest username to use when generating a dashboard guest token
+    required: false
+  - name: integration_mode
+    type: string
+    description: Integration path to use for Superset publishing - auto, mcp, or rest
+    required: false
+metadata:
+  category: starburst_bi
+  phase: dashboard_publication

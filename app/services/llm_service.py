@@ -202,11 +202,6 @@ class LLMService:
             if settings.llm_disable_max_completion_tokens:
                 merged_disabled_params["max_completion_tokens"] = None
                 merged_disabled_params["max_output_tokens"] = None
-                if effective_max_tokens is not None:
-                    LLMService.logger.warning(
-                        "Omitting max_tokens for LangChain ChatOpenAI request to %s because max_completion_tokens is disabled.",
-                        llm_config.model,
-                    )
             if merged_disabled_params:
                 request_params["disabled_params"] = merged_disabled_params
 

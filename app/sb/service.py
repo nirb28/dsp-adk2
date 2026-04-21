@@ -12,6 +12,8 @@ from app.sb.charting import create_visualization
 from app.sb.client import get_starburst_client
 from app.sb.metadata import search_semantic_metadata
 from app.sb.profiler import profile_result_set, recommend_visualization
+from app.sb.superset_mcp import SupersetMCPService
+from app.sb.superset_rest import SupersetRESTService
 from app.sb.safety import validate_sql
 from app.sb.utils import coerce_text, ensure_dict, ensure_json_text, ensure_list, expand_sql_placeholders, truncate_rows
 from app.services.llm_service import LLMService
@@ -588,6 +590,226 @@ class StarburstBIService:
         if result.get("error"):
             raise ValueError(result["error"])
         return result
+
+    @staticmethod
+    def _resolve_superset_integration_mode(integration_mode: Optional[str] = None) -> str:
+        resolved = coerce_text(integration_mode or settings.superset_integration_mode or "auto").strip().lower()
+        if resolved not in {"auto", "mcp", "rest"}:
+            raise ValueError("integration_mode must be one of: auto, mcp, rest")
+        return resolved
+
+    @staticmethod
+    async def _publish_superset_dashboard_via_mcp(
+        question: str,
+        sql: str,
+        recommendation: Optional[Any] = None,
+        profile: Optional[Any] = None,
+        title: Optional[str] = None,
+        chart_title: Optional[str] = None,
+        chart_type: Optional[str] = None,
+        x: Optional[str] = None,
+        y: Optional[str] = None,
+        database_name: Optional[str] = None,
+        schema_name: Optional[str] = None,
+        row_limit: int = 1000,
+        guest_username: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        result = await SupersetMCPService.publish_dashboard(
+            question=question,
+            sql=sql,
+            recommendation=recommendation,
+            profile=profile,
+            title=title,
+            chart_title=chart_title,
+            chart_type=chart_type,
+            x=x,
+            y=y,
+            database_name=database_name,
+            schema_name=schema_name,
+            row_limit=row_limit,
+            guest_username=guest_username,
+        )
+        return {**result, "integration_mode": "mcp"}
+
+    @staticmethod
+    async def _publish_superset_dashboard_via_rest(
+        question: str,
+        sql: str,
+        recommendation: Optional[Any] = None,
+        profile: Optional[Any] = None,
+        title: Optional[str] = None,
+        chart_title: Optional[str] = None,
+        chart_type: Optional[str] = None,
+        x: Optional[str] = None,
+        y: Optional[str] = None,
+        database_name: Optional[str] = None,
+        schema_name: Optional[str] = None,
+        row_limit: int = 1000,
+        guest_username: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        service = SupersetRESTService()
+        return await service.publish_dashboard(
+            question=question,
+            sql=sql,
+            recommendation=recommendation,
+            profile=profile,
+            title=title,
+            chart_title=chart_title,
+            chart_type=chart_type,
+            x=x,
+            y=y,
+            database_name=database_name,
+            schema_name=schema_name,
+            row_limit=row_limit,
+            guest_username=guest_username,
+        )
+
+    @staticmethod
+    async def _serve_superset_dashboard_via_mcp(
+        dashboard_id: int,
+        guest_username: Optional[str] = None,
+        standalone: bool = True,
+    ) -> Dict[str, Any]:
+        result = await SupersetMCPService.serve_dashboard(
+            dashboard_id=dashboard_id,
+            guest_username=guest_username,
+            standalone=standalone,
+        )
+        return {**result, "integration_mode": "mcp"}
+
+    @staticmethod
+    async def _serve_superset_dashboard_via_rest(
+        dashboard_id: int,
+        guest_username: Optional[str] = None,
+        standalone: bool = True,
+    ) -> Dict[str, Any]:
+        service = SupersetRESTService()
+        return await service.serve_dashboard(
+            dashboard_id=dashboard_id,
+            guest_username=guest_username,
+            standalone=standalone,
+        )
+
+    @staticmethod
+    async def publish_superset_dashboard(
+        question: str,
+        sql: str,
+        recommendation: Optional[Any] = None,
+        profile: Optional[Any] = None,
+        title: Optional[str] = None,
+        chart_title: Optional[str] = None,
+        chart_type: Optional[str] = None,
+        x: Optional[str] = None,
+        y: Optional[str] = None,
+        database_name: Optional[str] = None,
+        schema_name: Optional[str] = None,
+        row_limit: int = 1000,
+        guest_username: Optional[str] = None,
+        integration_mode: Optional[str] = None,
+        **_: Any,
+    ) -> Dict[str, Any]:
+        resolved_sql = coerce_text(sql).strip()
+        if not resolved_sql:
+            raise ValueError("sql is required to publish a Superset dashboard")
+        resolved_mode = StarburstBIService._resolve_superset_integration_mode(integration_mode)
+        if resolved_mode == "mcp":
+            return await StarburstBIService._publish_superset_dashboard_via_mcp(
+                question=question,
+                sql=resolved_sql,
+                recommendation=recommendation,
+                profile=profile,
+                title=title,
+                chart_title=chart_title,
+                chart_type=chart_type,
+                x=x,
+                y=y,
+                database_name=database_name,
+                schema_name=schema_name,
+                row_limit=row_limit,
+                guest_username=guest_username,
+            )
+        if resolved_mode == "rest":
+            return await StarburstBIService._publish_superset_dashboard_via_rest(
+                question=question,
+                sql=resolved_sql,
+                recommendation=recommendation,
+                profile=profile,
+                title=title,
+                chart_title=chart_title,
+                chart_type=chart_type,
+                x=x,
+                y=y,
+                database_name=database_name,
+                schema_name=schema_name,
+                row_limit=row_limit,
+                guest_username=guest_username,
+            )
+        try:
+            return await StarburstBIService._publish_superset_dashboard_via_mcp(
+                question=question,
+                sql=resolved_sql,
+                recommendation=recommendation,
+                profile=profile,
+                title=title,
+                chart_title=chart_title,
+                chart_type=chart_type,
+                x=x,
+                y=y,
+                database_name=database_name,
+                schema_name=schema_name,
+                row_limit=row_limit,
+                guest_username=guest_username,
+            )
+        except Exception:
+            return await StarburstBIService._publish_superset_dashboard_via_rest(
+                question=question,
+                sql=resolved_sql,
+                recommendation=recommendation,
+                profile=profile,
+                title=title,
+                chart_title=chart_title,
+                chart_type=chart_type,
+                x=x,
+                y=y,
+                database_name=database_name,
+                schema_name=schema_name,
+                row_limit=row_limit,
+                guest_username=guest_username,
+            )
+
+    @staticmethod
+    async def serve_superset_dashboard(
+        dashboard_id: int,
+        guest_username: Optional[str] = None,
+        standalone: bool = True,
+        integration_mode: Optional[str] = None,
+        **_: Any,
+    ) -> Dict[str, Any]:
+        resolved_mode = StarburstBIService._resolve_superset_integration_mode(integration_mode)
+        if resolved_mode == "mcp":
+            return await StarburstBIService._serve_superset_dashboard_via_mcp(
+                dashboard_id=dashboard_id,
+                guest_username=guest_username,
+                standalone=standalone,
+            )
+        if resolved_mode == "rest":
+            return await StarburstBIService._serve_superset_dashboard_via_rest(
+                dashboard_id=dashboard_id,
+                guest_username=guest_username,
+                standalone=standalone,
+            )
+        try:
+            return await StarburstBIService._serve_superset_dashboard_via_mcp(
+                dashboard_id=dashboard_id,
+                guest_username=guest_username,
+                standalone=standalone,
+            )
+        except Exception:
+            return await StarburstBIService._serve_superset_dashboard_via_rest(
+                dashboard_id=dashboard_id,
+                guest_username=guest_username,
+                standalone=standalone,
+            )
 
     @staticmethod
     def save_analysis(

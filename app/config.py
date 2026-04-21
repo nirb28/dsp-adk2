@@ -85,6 +85,17 @@ class Settings(BaseSettings):
     sb_allowed_schemas: Optional[str] = Field(default=None)
     sb_denied_columns: Optional[str] = Field(default=None)
     
+    superset_integration_mode: str = Field(default="auto")
+    superset_rest_url: Optional[str] = Field(default=None)
+    superset_public_url: Optional[str] = Field(default=None)
+    superset_api_username: Optional[str] = Field(default=None)
+    superset_api_password: Optional[str] = Field(default=None)
+    superset_api_timeout: float = Field(default=120.0)
+    superset_mcp_url: Optional[str] = Field(default=None)
+    superset_mcp_timeout: float = Field(default=120.0)
+    superset_database_name: str = Field(default="starburst")
+    superset_mcp_guest_username: str = Field(default="sb-agent")
+    
     api_key: Optional[str] = Field(default=None)
     jwt_secret: Optional[str] = Field(default=None)
     

@@ -5,9 +5,10 @@ import logging
 import operator
 from typing import Any, Dict, List, TypedDict, Annotated, Tuple, Optional
 
+from pydantic import Field, create_model
 from langgraph.graph import StateGraph, END
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, ToolMessage, BaseMessage
-from langchain_core.tools import tool
+from langchain_core.tools import StructuredTool
 
 from app.config import settings
 from app.models import AgentConfig, LLMOverride
@@ -28,6 +29,45 @@ class LangGraphAdapter(AgentFramework):
     name = "langgraph"
 
     logger = logging.getLogger(__name__)
+    _max_tool_message_chars = 4000
+
+    @staticmethod
+    def _python_type_for_tool_param(param_type: str) -> Any:
+        normalized = (param_type or "string").lower()
+        if normalized == "string":
+            return str
+        if normalized in {"number", "float"}:
+            return float
+        if normalized in {"integer", "int"}:
+            return int
+        if normalized == "boolean":
+            return bool
+        if normalized == "array":
+            return List[Any]
+        if normalized == "object":
+            return Dict[str, Any]
+        return Any
+
+    @classmethod
+    def _build_args_schema(cls, tool_config) -> type:
+        fields: Dict[str, tuple[Any, Any]] = {}
+        for param in tool_config.parameters:
+            annotation = cls._python_type_for_tool_param(param.type)
+            default = ... if param.required and param.default is None else param.default
+            fields[param.name] = (
+                annotation,
+                Field(default=default, description=param.description),
+            )
+        schema_name = f"{tool_config.name.title().replace('_', '')}Args"
+        return create_model(schema_name, **fields)
+
+    @classmethod
+    def _tool_message_content(cls, payload: Any) -> str:
+        content = payload if isinstance(payload, str) else json.dumps(payload, default=str)
+        if len(content) <= cls._max_tool_message_chars:
+            return content
+        truncated_chars = len(content) - cls._max_tool_message_chars
+        return f"{content[:cls._max_tool_message_chars]}\n... [truncated {truncated_chars} chars]"
 
     async def execute(
         self,
@@ -46,6 +86,8 @@ class LangGraphAdapter(AgentFramework):
             if not tool_config:
                 continue
 
+            args_schema = self._build_args_schema(tool_config)
+
             def create_tool_func(tn: str, description: str):
                 async def tool_func(**kwargs):
                     result = await ToolService.execute_tool(tn, kwargs, llm_override, llm_config)
@@ -58,7 +100,13 @@ class LangGraphAdapter(AgentFramework):
                 return tool_func
 
             tool_func = create_tool_func(tool_name, tool_config.description)
-            decorated_tool = tool(tool_func)
+            decorated_tool = StructuredTool.from_function(
+                coroutine=tool_func,
+                name=tool_name,
+                description=tool_config.description,
+                args_schema=args_schema,
+                infer_schema=False,
+            )
             tools.append(decorated_tool)
 
         llm_with_tools = llm.bind_tools(tools) if tools else llm
@@ -75,18 +123,21 @@ class LangGraphAdapter(AgentFramework):
             )
 
             is_first_call = "messages" not in state or len(messages_in_state) == 0
+            iteration = state.get("iteration", 0)
 
             if is_first_call:
-                messages = [
+                seed_messages = [
                     SystemMessage(content=agent_config.system_prompt),
                     HumanMessage(content=user_input),
                 ]
-                state["iteration"] = 0
+                llm_input = seed_messages
+                iteration = 0
                 self.logger.debug("agent_node: first iteration, iteration=0")
             else:
-                messages = list(messages_in_state)
-                state["iteration"] = state.get("iteration", 0) + 1
-                self.logger.debug("agent_node: incrementing iteration to %s", state["iteration"])
+                seed_messages = []
+                llm_input = list(messages_in_state)
+                iteration += 1
+                self.logger.debug("agent_node: incrementing iteration to %s", iteration)
 
             if settings.debug_trace:
                 self.logger.debug(
@@ -95,15 +146,14 @@ class LangGraphAdapter(AgentFramework):
                         {
                             "provider": llm_config.provider,
                             "model": llm_config.model,
-                            "messages": [m.model_dump() for m in messages],
+                            "messages": [m.model_dump() for m in llm_input],
                             "tool_names": [t.name for t in tools],
                         },
                         default=str,
                     ),
                 )
 
-            response = llm_with_tools.invoke(messages)
-            messages.append(response)
+            response = llm_with_tools.invoke(llm_input)
 
             if settings.debug_trace:
                 self.logger.debug(
@@ -126,16 +176,16 @@ class LangGraphAdapter(AgentFramework):
                 }
             )
 
-            state["messages"] = messages
-            state["last_response"] = response
+            # Return only NEW messages; operator.add will append them to state
+            new_messages = seed_messages + [response]
 
             self.logger.debug(
-                "agent_node: EXIT - messages in state: %d, iteration: %s",
-                len(state["messages"]),
-                state["iteration"],
+                "agent_node: EXIT - returning %d new messages, iteration: %s",
+                len(new_messages),
+                iteration,
             )
 
-            return state
+            return {"messages": new_messages, "last_response": response, "iteration": iteration}
 
         def should_continue(state: AgentState) -> str:
             last_response = state.get("last_response")
@@ -165,13 +215,27 @@ class LangGraphAdapter(AgentFramework):
             self.logger.debug("should_continue: no tool calls, ending")
             return END
 
+        tool_names_set = {t.name for t in tools}
+
+        def _sanitize_tool_name(raw_name: str) -> str:
+            """Strip model-hallucinated suffixes from tool names."""
+            if raw_name in tool_names_set:
+                return raw_name
+            for known in sorted(tool_names_set, key=len, reverse=True):
+                if raw_name.startswith(known):
+                    self.logger.warning(
+                        "Sanitized tool name %r -> %r", raw_name, known
+                    )
+                    return known
+            return raw_name
+
         async def tool_node(state: AgentState) -> AgentState:
             last_response = state.get("last_response")
-            messages = state.get("messages", [])
+            new_messages: List[ToolMessage] = []
 
             if hasattr(last_response, "tool_calls") and last_response.tool_calls:
                 for tool_call in last_response.tool_calls:
-                    tool_name = tool_call["name"]
+                    tool_name = _sanitize_tool_name(tool_call["name"])
                     tool_args = tool_call.get("args", {})
 
                     result = await ToolService.execute_tool(tool_name, tool_args, llm_override, llm_config)
@@ -186,16 +250,17 @@ class LangGraphAdapter(AgentFramework):
                         }
                     )
 
-                    messages.append(
+                    new_messages.append(
                         ToolMessage(
-                            content=str(result.result if result.success else result.error),
+                            content=self._tool_message_content(
+                                result.result if result.success else result.error
+                            ),
                             tool_call_id=tool_call.get("id", ""),
                         )
                     )
 
-            state["messages"] = messages
-
-            return state
+            # Return only NEW messages; operator.add will append them to state
+            return {"messages": new_messages}
 
         workflow = StateGraph(AgentState)
 

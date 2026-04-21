@@ -123,14 +123,11 @@ class ToolService:
         import inspect
         enriched_params = dict(parameters)
         signature = inspect.signature(func)
-        accepts_kwargs = any(
-            param.kind == inspect.Parameter.VAR_KEYWORD for param in signature.parameters.values()
-        )
         if llm_override is not None and "llm_override" not in enriched_params:
-            if "llm_override" in signature.parameters or accepts_kwargs:
+            if "llm_override" in signature.parameters:
                 enriched_params["llm_override"] = llm_override
         if llm_config is not None and "llm_config" not in enriched_params:
-            if "llm_config" in signature.parameters or accepts_kwargs:
+            if "llm_config" in signature.parameters:
                 enriched_params["llm_config"] = llm_config
 
         if inspect.iscoroutinefunction(func):

@@ -286,6 +286,62 @@ LLM_MODEL=gpt-4
 LLM_API_KEY=sk-...
 ```
 
+## Starburst BI with Superset
+
+The `sb_bi_chatbot_analyst` agent can analyze data in Starburst and then publish or serve dashboards through Superset using one of two integration paths:
+
+- **MCP**: uses the configured Superset MCP server
+- **REST**: uses the direct Superset 6.0 REST API
+- **auto**: tries MCP first and falls back to REST
+
+Set the integration mode in `.env`:
+
+```env
+SUPERSET_INTEGRATION_MODE=auto
+SUPERSET_DATABASE_NAME=starburst
+SUPERSET_MCP_GUEST_USERNAME=sb-agent
+```
+
+For the MCP path, configure:
+
+```env
+SUPERSET_MCP_URL=http://localhost:8811/mcp
+SUPERSET_MCP_TIMEOUT=120
+```
+
+For the Superset 6.0 REST path, configure:
+
+```env
+SUPERSET_REST_URL=http://localhost:8088
+SUPERSET_PUBLIC_URL=http://localhost:8088
+SUPERSET_API_USERNAME=admin
+SUPERSET_API_PASSWORD=admin
+SUPERSET_API_TIMEOUT=120
+```
+
+The REST path expects a Superset database connection named by `SUPERSET_DATABASE_NAME` that points at your Starburst/Trino backend.
+
+The agent can use these tools:
+
+- `sb_publish_superset_dashboard`
+- `sb_serve_superset_dashboard`
+
+Both tools accept `integration_mode` with `auto`, `mcp`, or `rest`.
+
+You can run the included example client:
+
+```bash
+python examples/sb/run_bi_superset_dashboard_agent_api.py
+```
+
+Example prompt intent:
+
+```text
+Analyze monthly revenue for the last 12 months by region and publish a Superset dashboard with a shareable URL. Use Superset integration mode rest.
+```
+
+The response should include the SQL used, dashboard URL, guest token when created, and the resolved integration mode.
+
 ## API Endpoints
 
 ### Admin Endpoints
